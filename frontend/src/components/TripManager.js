@@ -258,9 +258,9 @@ const TripManager = () => {
           return_time: cruiseData.return_time?.toISOString()
         };
 
-        if (isEditMode && existingTrip?.trip_type === 'cruise') {
-          // Update existing cruise info
-          await axios.put(`${API}/cruise-info/${existingTrip.id}`, cruisePayload);
+        if (isEditMode && existingTrip?.trip_type === 'cruise' && cruiseInfoId) {
+          // Update existing cruise info using correct ID
+          await axios.put(`${API}/cruise-info/${cruiseInfoId}`, cruisePayload);
         } else {
           // Create new cruise info
           await axios.post(`${API}/trips/${tripId}/cruise-info`, cruisePayload);
