@@ -128,6 +128,9 @@ backend:
         - working: false
           agent: "user"
           comment: "User reported error loading Analytics in Financial Reports section"
+        - working: false
+          agent: "main"
+          comment: "Added enhanced error logging to FinancialReports.js to capture detailed error information. Backend endpoints need testing."
 
 frontend:
   - task: "Fix TripManager to send only modified fields in edit mode"
