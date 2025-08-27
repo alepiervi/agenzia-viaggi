@@ -28,9 +28,6 @@ import {
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
-
 const TripManager = () => {
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
