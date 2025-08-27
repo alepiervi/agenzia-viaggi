@@ -586,7 +586,7 @@ async def get_trip_with_details(trip_id: str, current_user: dict = Depends(get_c
     }
 
 @api_router.put("/trips/{trip_id}", response_model=Trip)
-async def update_trip(trip_id: str, trip_data: TripCreate, current_user: dict = Depends(get_current_user)):
+async def update_trip(trip_id: str, trip_data: TripUpdate, current_user: dict = Depends(get_current_user)):
     if current_user["role"] not in ["admin", "agent"]:
         raise HTTPException(status_code=403, detail="Not authorized to update trips")
     
@@ -594,8 +594,21 @@ async def update_trip(trip_id: str, trip_data: TripCreate, current_user: dict = 
     if not trip:
         raise HTTPException(status_code=404, detail="Trip not found")
     
-    update_data = prepare_for_mongo(trip_data.dict())
-    await db.trips.update_one({"id": trip_id}, {"$set": update_data})
+    # Check if agent is updating their own trip
+    if current_user["role"] == "agent" and trip["agent_id"] != current_user["id"]:
+        raise HTTPException(status_code=403, detail="Agents can only update their own trips")
+    
+    # Prepare update data, excluding None values
+    update_data = {}
+    for field, value in trip_data.dict(exclude_unset=True).items():
+        if value is not None:
+            if isinstance(value, datetime):
+                update_data[field] = value.isoformat()
+            else:
+                update_data[field] = value
+    
+    if update_data:
+        await db.trips.update_one({"id": trip_id}, {"$set": update_data})
     
     updated_trip = await db.trips.find_one({"id": trip_id})
     return Trip(**parse_from_mongo(updated_trip))
