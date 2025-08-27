@@ -237,7 +237,7 @@ function App() {
               path="/financial-reports" 
               element={
                 <ProtectedRoute allowedRoles={['admin', 'agent']}>
-                  <CommissionCalculator />
+                  <FinancialReports />
                 </ProtectedRoute>
               } 
             />
