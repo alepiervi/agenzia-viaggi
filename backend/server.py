@@ -1262,15 +1262,20 @@ async def get_payment_deadlines(current_user: dict = Depends(get_current_user)):
             continue
         
         # Calculate days until due
-        payment_date_str = payment["payment_date"]
-        if isinstance(payment_date_str, str):
-            payment_date = datetime.fromisoformat(payment_date_str.replace('Z', '+00:00'))
-        else:
-            # Handle datetime object
-            payment_date = payment_date_str
-            if payment_date.tzinfo is None:
-                payment_date = payment_date.replace(tzinfo=timezone.utc)
-        days_until_due = (payment_date - today).days
+        try:
+            payment_date_str = payment["payment_date"]
+            if isinstance(payment_date_str, str):
+                payment_date = datetime.fromisoformat(payment_date_str.replace('Z', '+00:00'))
+            else:
+                # Handle datetime object
+                payment_date = payment_date_str
+                if payment_date.tzinfo is None:
+                    payment_date = payment_date.replace(tzinfo=timezone.utc)
+            days_until_due = (payment_date - today).days
+        except Exception as e:
+            # Skip this payment if date parsing fails
+            print(f"Date parsing error for payment {payment.get('id', 'unknown')}: {e}")
+            continue
         
         notifications.append({
             "id": payment["id"],
