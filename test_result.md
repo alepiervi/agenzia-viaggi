@@ -174,8 +174,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Fix TripManager to send only modified fields in edit mode"
+    - "Fix trip update API to handle partial updates"
     - "Fix analytics data loading in financial reports"
+    - "Fix TripManager to send only modified fields in edit mode"
   stuck_tasks:
     - "Fix trip update API to handle partial updates"
   test_all: false
