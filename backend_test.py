@@ -463,6 +463,31 @@ class TravelAgencyAPITester:
             
         return success
 
+    def test_client_financial_summary(self, role: str, client_id: str):
+        """Test client financial summary endpoint"""
+        if role not in self.tokens:
+            print(f"❌ No token for {role}")
+            return False
+            
+        expected_status = 200 if role in ["admin", "agent"] else 403
+        
+        success, response = self.run_test(
+            f"Get client financial summary ({role})",
+            "GET",
+            f"clients/{client_id}/financial-summary",
+            expected_status,
+            token=self.tokens[role]
+        )
+        
+        if success and role in ["admin", "agent"]:
+            print(f"   ✅ Client financial summary retrieved")
+            print(f"   📊 Total bookings: {response.get('total_bookings', 0)}")
+            print(f"   💰 Total revenue: {response.get('total_revenue', 0)}")
+            print(f"   🎯 Confirmed bookings: {response.get('confirmed_bookings', 0)}")
+            print(f"   💵 Agent commission: {response.get('total_agent_commission', 0)}")
+            
+        return success
+
 def main():
     print("🚀 Starting Travel Agency API Tests")
     print("=" * 50)
