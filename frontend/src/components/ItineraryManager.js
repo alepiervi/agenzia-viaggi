@@ -360,7 +360,7 @@ const ItineraryManager = () => {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => setEditingDay(day.day_number)}
+                          onClick={() => startEditingDay(day)}
                         >
                           {day.existing ? <Edit size={14} className="mr-2" /> : <Plus size={14} className="mr-2" />}
                           {day.existing ? 'Modifica' : 'Pianifica'}
