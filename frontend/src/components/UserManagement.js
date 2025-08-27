@@ -289,6 +289,19 @@ const UserManagement = () => {
                 </div>
                 
                 <div className="flex items-center gap-2">
+                  {/* View Client Details Button (for clients only) */}
+                  {user.role === 'client' && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="flex-1 hover:bg-teal-50 hover:text-teal-700"
+                      onClick={() => handleViewClient(user.id)}
+                    >
+                      <Eye size={14} className="mr-1" />
+                      Dettagli
+                    </Button>
+                  )}
+                  
                   <Button
                     size="sm"
                     variant="ghost"
