@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import axios from 'axios';
+import { apiClient, getApiBase } from '../utils/api';
 import { toast } from 'sonner';
 import { useAuth } from '../App';
 import Dashboard from './Dashboard';
