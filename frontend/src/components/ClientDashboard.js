@@ -41,13 +41,24 @@ const ClientDashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const [statsRes, tripsRes] = await Promise.all([
+      const requests = [
         axios.get(`${API}/dashboard/stats`),
         axios.get(`${API}/trips`)
-      ]);
-
-      setStats(statsRes.data);
-      setTrips(tripsRes.data);
+      ];
+      
+      // Only fetch financial summary if user is a client
+      if (user?.role === 'client') {
+        requests.push(axios.get(`${API}/clients/${user.id}/financial-summary`));
+      }
+      
+      const responses = await Promise.all(requests);
+      
+      setStats(responses[0].data);
+      setTrips(responses[1].data);
+      
+      if (responses[2]) {
+        setFinancialSummary(responses[2].data);
+      }
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
       toast.error('Errore nel caricamento dei dati');
