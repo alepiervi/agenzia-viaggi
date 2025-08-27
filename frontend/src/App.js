@@ -28,14 +28,14 @@ import ClientDetail from './components/ClientDetail';
 import NotificationCenter from './components/NotificationCenter';
 import DebugInfo from './components/DebugInfo';
 
-// Force localhost backend for development
-const BACKEND_URL = 'http://localhost:8001';
+// Backend configuration - use localhost directly
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 const API = `${BACKEND_URL}/api`;
 
-console.log('Backend configuration forced to localhost:', {
-  BACKEND_URL,
-  API
-});
+// Override for preview environment
+if (BACKEND_URL.includes('preview.emergentagent.com')) {
+  window.API_OVERRIDE = 'http://localhost:8001/api';
+}
 
 // Auth Provider
 const AuthProvider = ({ children }) => {
