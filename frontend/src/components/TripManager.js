@@ -52,7 +52,8 @@ const TripManager = () => {
     start_date: null,
     end_date: null,
     client_id: '',
-    trip_type: ''
+    trip_type: '',
+    status: 'draft'  // Default to draft, but allow changing
   });
 
   // Cruise specific data
