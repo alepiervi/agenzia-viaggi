@@ -328,10 +328,8 @@ const ItineraryManager = () => {
                       <Label htmlFor={`desc-${day.day_number}`}>Programma della Giornata</Label>
                       <Textarea
                         id={`desc-${day.day_number}`}
-                        value={day.description}
-                        onChange={(e) => {
-                          day.description = e.target.value;
-                        }}
+                        value={editingData.description || ''}
+                        onChange={(e) => updateEditingData('description', e.target.value)}
                         placeholder="Descrivi il programma dettagliato della giornata..."
                         rows={4}
                       />
