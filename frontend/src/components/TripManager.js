@@ -321,6 +321,33 @@ const TripManager = () => {
               )}
             </div>
 
+            {/* Creator Info */}
+            {isEditMode && tripDetails?.agent && (
+              <Card className="bg-slate-50 border-slate-200">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center">
+                        <span className="font-bold text-blue-700 text-sm">
+                          {tripDetails.agent.first_name?.charAt(0)}{tripDetails.agent.last_name?.charAt(0)}
+                        </span>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-slate-700">Viaggio creato da:</p>
+                        <p className="font-semibold text-slate-800">
+                          {tripDetails.agent.first_name} {tripDetails.agent.last_name}
+                        </p>
+                        <p className="text-xs text-slate-500">{tripDetails.agent.email}</p>
+                      </div>
+                    </div>
+                    <Badge variant="outline" className="text-xs">
+                      Agente
+                    </Badge>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Basic Trip Information */}
             <Card>
               <CardHeader>
