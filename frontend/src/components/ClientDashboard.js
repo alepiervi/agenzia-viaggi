@@ -192,12 +192,12 @@ const ClientDashboard = () => {
         </div>
       </nav>
 
-      <div className="space-y-6 animate-fade-in">
+      <div className="space-y-4 animate-fade-in">
         {/* Header */}
-        <div className="flex flex-col space-y-3 md:flex-row md:items-center md:justify-between md:space-y-0">
+        <div className="flex flex-col space-y-2 md:flex-row md:items-center md:justify-between md:space-y-0">
           <div>
             <h1 className="text-3xl font-bold text-slate-800">I Miei Viaggi</h1>
-            <p className="text-slate-600 mt-1">Esplora e gestisci i tuoi itinerari di viaggio</p>
+            <p className="text-slate-600">Esplora e gestisci i tuoi itinerari di viaggio</p>
           </div>
         </div>
 
