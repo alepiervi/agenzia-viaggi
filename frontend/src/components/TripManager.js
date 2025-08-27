@@ -174,31 +174,47 @@ const TripManager = () => {
     setLoading(true);
     
     try {
-      // Create the trip
-      const tripResponse = await axios.post(`${API}/trips`, {
+      let tripResponse;
+      const tripData = {
         ...formData,
         start_date: formData.start_date.toISOString(),
         end_date: formData.end_date.toISOString()
-      });
+      };
 
-      const tripId = tripResponse.data.id;
+      if (isEditMode) {
+        // Update existing trip
+        tripResponse = await axios.put(`${API}/trips/${editTripId}`, tripData);
+      } else {
+        // Create new trip
+        tripResponse = await axios.post(`${API}/trips`, tripData);
+      }
 
-      // If it's a cruise, create cruise info
+      const tripId = isEditMode ? editTripId : tripResponse.data.id;
+
+      // If it's a cruise, create/update cruise info
       if (formData.trip_type === 'cruise' && cruiseData.ship_name) {
-        await axios.post(`${API}/trips/${tripId}/cruise-info`, {
+        const cruisePayload = {
           ...cruiseData,
           trip_id: tripId,
           departure_time: cruiseData.departure_time?.toISOString(),
           return_time: cruiseData.return_time?.toISOString()
-        });
+        };
+
+        if (isEditMode && existingTrip?.trip_type === 'cruise') {
+          // Update existing cruise info
+          await axios.put(`${API}/cruise-info/${existingTrip.id}`, cruisePayload);
+        } else {
+          // Create new cruise info
+          await axios.post(`${API}/trips/${tripId}/cruise-info`, cruisePayload);
+        }
       }
 
-      toast.success('Viaggio creato con successo!');
+      toast.success(isEditMode ? 'Viaggio aggiornato con successo!' : 'Viaggio creato con successo!');
       navigate('/dashboard');
       
     } catch (error) {
-      console.error('Error creating trip:', error);
-      toast.error('Errore nella creazione del viaggio');
+      console.error('Error saving trip:', error);
+      toast.error(isEditMode ? 'Errore nell\'aggiornamento del viaggio' : 'Errore nella creazione del viaggio');
     } finally {
       setLoading(false);
     }
