@@ -151,8 +151,8 @@ const ItineraryManager = () => {
     setEditingData({});
   };
 
-  const handleSaveItinerary = async (dayData) => {
-    if (!dayData.title.trim()) {
+  const handleSaveItinerary = async () => {
+    if (!editingData.title?.trim()) {
       toast.error('Il titolo è obbligatorio');
       return;
     }
@@ -160,16 +160,18 @@ const ItineraryManager = () => {
     try {
       const itineraryData = {
         trip_id: tripId,
-        day_number: dayData.day_number,
-        date: dayData.date.toISOString(),
-        title: dayData.title,
-        description: dayData.description,
-        itinerary_type: dayData.itinerary_type
+        day_number: editingData.day_number,
+        date: editingData.date.toISOString(),
+        title: editingData.title,
+        description: editingData.description,
+        itinerary_type: editingData.itinerary_type
       };
 
-      if (dayData.existing) {
+      const existingItinerary = itineraries.find(it => it.day_number === editingData.day_number);
+
+      if (existingItinerary) {
         // Update existing itinerary
-        await axios.put(`${API}/itineraries/${dayData.existing.id}`, itineraryData);
+        await axios.put(`${API}/itineraries/${existingItinerary.id}`, itineraryData);
         toast.success('Itinerario aggiornato con successo');
       } else {
         // Create new itinerary
@@ -178,7 +180,7 @@ const ItineraryManager = () => {
       }
 
       await fetchTripAndItineraries();
-      setEditingDay(null);
+      cancelEditing();
     } catch (error) {
       console.error('Error saving itinerary:', error);
       toast.error('Errore nel salvataggio dell\'itinerario');
