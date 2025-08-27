@@ -65,11 +65,9 @@ const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      // Use override API if available (for preview environment)
-      const apiUrl = window.API_OVERRIDE || API;
-      console.log('Login attempt with URL:', `${apiUrl}/auth/login`);
+      console.log('Login attempt with URL:', `${API}/auth/login`);
       
-      const response = await axios.post(`${apiUrl}/auth/login`, { email, password });
+      const response = await axios.post(`${API}/auth/login`, { email, password });
       const { user, token } = response.data;
       
       console.log('✅ Login successful:', user);
