@@ -216,6 +216,7 @@ const TripManager = () => {
         if (hasChanged(formData.description, existingTrip.description)) updateData.description = formData.description;
         if (formData.client_id !== existingTrip.client_id) updateData.client_id = formData.client_id;
         if (formData.trip_type !== existingTrip.trip_type) updateData.trip_type = formData.trip_type;
+        if (formData.status !== existingTrip.status) updateData.status = formData.status;
         
         // Handle dates carefully
         const existingStartDate = new Date(existingTrip.start_date).toISOString().split('T')[0];
