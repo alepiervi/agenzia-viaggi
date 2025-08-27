@@ -152,32 +152,74 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
 function App() {
   // Add global error handler for MetaMask errors
   useEffect(() => {
+    // More aggressive MetaMask blocking
+    const blockAllCryptoWallets = () => {
+      try {
+        // Delete any ethereum references
+        delete window.ethereum;
+        delete window.web3;
+        
+        // Override with permanent blocks
+        Object.defineProperty(window, 'ethereum', {
+          get: () => {
+            console.warn('🛡️ Travel Agency: Crypto wallet access blocked');
+            return undefined;
+          },
+          set: () => {},
+          configurable: false
+        });
+        
+        window.isMetaMask = false;
+      } catch (e) {
+        console.warn('Travel Agency: Wallet blocking error:', e);
+      }
+    };
+    
     const handleError = (event) => {
       const error = event.error || event.reason;
-      if (error && error.message && error.message.includes('MetaMask')) {
-        console.warn('MetaMask error suppressed:', error.message);
-        event.preventDefault();
-        return false;
+      if (error && error.message) {
+        const message = error.message.toLowerCase();
+        if (message.includes('metamask') || 
+            message.includes('ethereum') || 
+            message.includes('web3') ||
+            message.includes('wallet') ||
+            message.includes('chrome-extension')) {
+          console.warn('🛡️ Crypto wallet error suppressed:', error.message);
+          event.preventDefault();
+          event.stopPropagation();
+          return false;
+        }
       }
     };
 
     const handleUnhandledRejection = (event) => {
       const error = event.reason;
-      if (error && error.message && error.message.includes('MetaMask')) {
-        console.warn('MetaMask promise rejection suppressed:', error.message);
-        event.preventDefault();
-        return false;
+      if (error && error.message) {
+        const message = error.message.toLowerCase();
+        if (message.includes('metamask') || 
+            message.includes('ethereum') || 
+            message.includes('web3') ||
+            message.includes('wallet')) {
+          console.warn('🛡️ Crypto wallet promise rejection suppressed:', error.message);
+          event.preventDefault();
+          return false;
+        }
       }
     };
 
+    // Block crypto wallets immediately and continuously
+    blockAllCryptoWallets();
+    const blockInterval = setInterval(blockAllCryptoWallets, 1000);
+
     // Add error listeners
-    window.addEventListener('error', handleError);
-    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+    window.addEventListener('error', handleError, true);
+    window.addEventListener('unhandledrejection', handleUnhandledRejection, true);
 
     // Cleanup
     return () => {
-      window.removeEventListener('error', handleError);
-      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+      clearInterval(blockInterval);
+      window.removeEventListener('error', handleError, true);
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection, true);
     };
   }, []);
 
