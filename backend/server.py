@@ -1216,9 +1216,36 @@ async def get_client_financial_summary(client_id: str, current_user: dict = Depe
     total_supplier_commission = sum(admin.get("supplier_commission", 0) for admin in trip_admin_data)
     total_agent_commission = sum(admin.get("agent_commission", 0) for admin in trip_admin_data)
     
-    # Get confirmed bookings only
+    # Get confirmed bookings only (status = "confirmed")
     confirmed_bookings = [admin for admin in trip_admin_data if admin.get("status") == "confirmed"]
     confirmed_revenue = sum(admin.get("gross_amount", 0) for admin in confirmed_bookings)
+    confirmed_net_amount = sum(admin.get("net_amount", 0) for admin in confirmed_bookings)
+    confirmed_discounts = sum(admin.get("discount", 0) for admin in confirmed_bookings)
+    confirmed_gross_commission = sum(admin.get("gross_commission", 0) for admin in confirmed_bookings)
+    confirmed_supplier_commission = sum(admin.get("supplier_commission", 0) for admin in confirmed_bookings)
+    confirmed_agent_commission = sum(admin.get("agent_commission", 0) for admin in confirmed_bookings)
+    
+    # Calculate confirmed booking details with trip info
+    confirmed_booking_details = []
+    for admin in confirmed_bookings:
+        # Find corresponding trip
+        trip = next((t for t in client_trips if t["id"] == admin["trip_id"]), None)
+        if trip:
+            confirmed_booking_details.append({
+                "trip_id": admin["trip_id"],
+                "trip_title": trip["title"],
+                "trip_destination": trip["destination"],
+                "practice_number": admin.get("practice_number", ""),
+                "booking_number": admin.get("booking_number", ""),
+                "gross_amount": admin.get("gross_amount", 0),
+                "net_amount": admin.get("net_amount", 0),
+                "discount": admin.get("discount", 0),
+                "gross_commission": admin.get("gross_commission", 0),
+                "supplier_commission": admin.get("supplier_commission", 0),
+                "agent_commission": admin.get("agent_commission", 0),
+                "confirmation_date": admin.get("confirmation_date"),
+                "departure_date": admin.get("client_departure_date")
+            })
     
     return {
         "client_id": client_id,
@@ -1231,6 +1258,14 @@ async def get_client_financial_summary(client_id: str, current_user: dict = Depe
         "total_gross_commission": total_gross_commission,
         "total_supplier_commission": total_supplier_commission,
         "total_agent_commission": total_agent_commission,
+        # Confirmed bookings specific data
+        "confirmed_revenue": confirmed_revenue,
+        "confirmed_net_amount": confirmed_net_amount, 
+        "confirmed_discounts": confirmed_discounts,
+        "confirmed_gross_commission": confirmed_gross_commission,
+        "confirmed_supplier_commission": confirmed_supplier_commission,
+        "confirmed_agent_commission": confirmed_agent_commission,
+        "confirmed_booking_details": confirmed_booking_details,
         "bookings": parsed_admin_data
     }
 
