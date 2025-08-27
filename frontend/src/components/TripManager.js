@@ -42,6 +42,7 @@ const TripManager = () => {
   const [loading, setLoading] = useState(false);
   const [selectedTripType, setSelectedTripType] = useState('');
   const [existingTrip, setExistingTrip] = useState(null);
+  const [tripDetails, setTripDetails] = useState(null); // For agent/client info
   
   // Form data
   const [formData, setFormData] = useState({
