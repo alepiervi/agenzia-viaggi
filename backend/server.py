@@ -1156,6 +1156,53 @@ async def get_yearly_summary(year: int, current_user: dict = Depends(get_current
         "total_agent_commission": sum(trip.get("agent_commission", 0) for trip in confirmed_trips)
     }
 
+# Client financial summary endpoint
+@api_router.get("/clients/{client_id}/financial-summary")
+async def get_client_financial_summary(client_id: str, current_user: dict = Depends(get_current_user)):
+    if current_user["role"] not in ["admin", "agent"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # If agent, verify they can access this client's data
+    if current_user["role"] == "agent":
+        # Get client's trips created by this agent
+        agent_trips = await db.trips.find({"client_id": client_id, "agent_id": current_user["id"]}).to_list(1000)
+        if not agent_trips:
+            raise HTTPException(status_code=403, detail="Not authorized to access this client's data")
+    
+    # Get all trips for this client
+    client_trips = await db.trips.find({"client_id": client_id}).to_list(1000)
+    trip_ids = [trip["id"] for trip in client_trips]
+    
+    # Get all trip admin data for client's trips
+    trip_admin_data = await db.trip_admin.find({"trip_id": {"$in": trip_ids}}).to_list(1000)
+    
+    # Calculate totals
+    total_bookings = len(trip_admin_data)
+    total_revenue = sum(admin.get("gross_amount", 0) for admin in trip_admin_data)
+    total_net_amount = sum(admin.get("net_amount", 0) for admin in trip_admin_data)
+    total_discounts = sum(admin.get("discount", 0) for admin in trip_admin_data)
+    total_gross_commission = sum(admin.get("gross_commission", 0) for admin in trip_admin_data)
+    total_supplier_commission = sum(admin.get("supplier_commission", 0) for admin in trip_admin_data)
+    total_agent_commission = sum(admin.get("agent_commission", 0) for admin in trip_admin_data)
+    
+    # Get confirmed bookings only
+    confirmed_bookings = [admin for admin in trip_admin_data if admin.get("status") == "confirmed"]
+    confirmed_revenue = sum(admin.get("gross_amount", 0) for admin in confirmed_bookings)
+    
+    return {
+        "client_id": client_id,
+        "total_bookings": total_bookings,
+        "confirmed_bookings": len(confirmed_bookings),
+        "total_revenue": total_revenue,
+        "confirmed_revenue": confirmed_revenue,
+        "total_net_amount": total_net_amount,
+        "total_discounts": total_discounts,
+        "total_gross_commission": total_gross_commission,
+        "total_supplier_commission": total_supplier_commission,
+        "total_agent_commission": total_agent_commission,
+        "bookings": trip_admin_data
+    }
+
 # Include router
 app.include_router(api_router)
 
