@@ -318,6 +318,36 @@ const TripView = () => {
               </div>
             </div>
           </div>
+          
+          {/* Management Buttons for Admin/Agent */}
+          {user && ['admin', 'agent'].includes(user.role) && (
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                onClick={() => navigate(`/trips/${tripId}/itinerary`)}
+                className="flex items-center gap-2"
+              >
+                <Calendar size={16} />
+                Gestisci Itinerario
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => navigate(`/manage-trips?edit=${tripId}`)}
+                className="flex items-center gap-2"
+              >
+                <Edit size={16} />
+                Modifica Viaggio
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => navigate(`/trip-admin/${tripId}`)}
+                className="flex items-center gap-2"
+              >
+                <Settings size={16} />
+                Amministrazione
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Trip Info Card */}
