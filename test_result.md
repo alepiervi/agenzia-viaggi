@@ -131,8 +131,8 @@ backend:
 
 frontend:
   - task: "Fix TripManager to send only modified fields in edit mode"
-    implemented: false
-    working: false
+    implemented: true
+    working: "NA"
     file: "TripManager.js"
     stuck_count: 1
     priority: "high"
@@ -141,6 +141,9 @@ frontend:
         - working: false
           agent: "main"
           comment: "TripManager likely sending all fields instead of only modified ones during edit, causing backend validation errors"
+        - working: "NA"
+          agent: "main"
+          comment: "Improved comparison logic with hasChanged helper function to handle null/undefined values better. Added console logging for debugging."
 
   - task: "Improve UI layout - bring selected section data higher"
     implemented: false
