@@ -1303,7 +1303,11 @@ async def get_payment_deadlines(current_user: dict = Depends(get_current_user)):
         client = await db.users.find_one({"id": trip["client_id"]}) if trip else None
         
         if trip and client:
-            departure_date = datetime.fromisoformat(admin["client_departure_date"].replace('Z', '+00:00'))
+            departure_date_str = admin["client_departure_date"]
+            if isinstance(departure_date_str, str):
+                departure_date = datetime.fromisoformat(departure_date_str.replace('Z', '+00:00'))
+            else:
+                departure_date = departure_date_str.replace(tzinfo=timezone.utc) if departure_date_str.tzinfo is None else departure_date_str
             days_until_departure = (departure_date - today).days
             
             notifications.append({
