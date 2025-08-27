@@ -208,6 +208,42 @@ frontend:
           agent: "testing"
           comment: "✅ VERIFIED: Client financial summary section fully implemented and working. ClientDashboard displays comprehensive financial metrics including: Prenotazioni Totali, Fatturato Totale, Sconti Applicati, Commissioni Totali. Detailed commission breakdown shows Commissioni Lorde, Commissioni Fornitore, and Commissioni Agente. All metrics are properly formatted and displayed in attractive card layout."
 
+  - task: "Implement day-by-day itinerary management system"
+    implemented: false
+    working: false
+    file: "ItineraryManager.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: false
+          agent: "user"
+          comment: "User reports missing functionality to add day-by-day itinerary for trips. Need complete itinerary management system."
+
+  - task: "Make client list clickable with detailed analytics view"
+    implemented: false
+    working: false
+    file: "UserManagement.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: false
+          agent: "user"
+          comment: "Client list not clickable. Need detailed client view showing purchased trips and financial analytics for earnings from client bookings."
+
+  - task: "Implement internal notifications system for payment deadlines"
+    implemented: false
+    working: false
+    file: "NotificationSystem.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+        - working: false
+          agent: "user"
+          comment: "Need internal notifications for deadlines like balance payments, deposits, and other payment schedules."
+
   - task: "Test login functionality with different user roles"
     implemented: true
     working: true
