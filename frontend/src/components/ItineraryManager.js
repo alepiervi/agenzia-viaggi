@@ -127,6 +127,30 @@ const ItineraryManager = () => {
     }
   };
 
+  const startEditingDay = (day) => {
+    setEditingDay(day.day_number);
+    // Initialize editing data with current values or defaults
+    setEditingData({
+      day_number: day.day_number,
+      date: day.date,
+      title: day.existing?.title || '',
+      description: day.existing?.description || '',
+      itinerary_type: day.existing?.itinerary_type || getDefaultItineraryType()
+    });
+  };
+
+  const updateEditingData = (field, value) => {
+    setEditingData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const cancelEditing = () => {
+    setEditingDay(null);
+    setEditingData({});
+  };
+
   const handleSaveItinerary = async (dayData) => {
     if (!dayData.title.trim()) {
       toast.error('Il titolo è obbligatorio');
