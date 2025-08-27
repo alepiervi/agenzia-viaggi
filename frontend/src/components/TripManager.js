@@ -270,7 +270,19 @@ const TripManager = () => {
       
     } catch (error) {
       console.error('Error saving trip:', error);
-      toast.error(isEditMode ? 'Errore nell\'aggiornamento del viaggio' : 'Errore nella creazione del viaggio');
+      console.error('Error response:', error.response?.data);
+      console.error('Error status:', error.response?.status);
+      console.error('Request URL:', error.config?.url);
+      
+      let errorMessage = isEditMode ? 'Errore nell\'aggiornamento del viaggio' : 'Errore nella creazione del viaggio';
+      
+      if (error.response?.status === 404) {
+        errorMessage = 'Viaggio non trovato o endpoint non disponibile';
+      } else if (error.response?.data?.detail) {
+        errorMessage = error.response.data.detail;
+      }
+      
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
