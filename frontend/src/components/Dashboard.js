@@ -159,7 +159,7 @@ const Dashboard = ({ children }) => {
         </div>
 
         {/* Page content */}
-        <main className="px-4 pt-2 pb-4 lg:px-8 lg:pt-4 lg:pb-8">
+        <main className="px-4 pt-1 pb-4 lg:px-8 lg:pt-2 lg:pb-8">
           {children}
         </main>
       </div>
