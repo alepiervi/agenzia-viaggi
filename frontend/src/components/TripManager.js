@@ -296,14 +296,16 @@ const TripManager = () => {
                 {getTripTypeIcon(selectedTripType)}
                 <span className="ml-2 capitalize">{selectedTripType}</span>
               </Badge>
-              <Button 
-                type="button" 
-                variant="ghost" 
-                size="sm"
-                onClick={() => setSelectedTripType('')}
-              >
-                Cambia Tipo
-              </Button>
+              {!isEditMode && (
+                <Button 
+                  type="button" 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => setSelectedTripType('')}
+                >
+                  Cambia Tipo
+                </Button>
+              )}
             </div>
 
             {/* Basic Trip Information */}
