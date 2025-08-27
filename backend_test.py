@@ -821,6 +821,29 @@ def main():
         # Test for all roles
         for role in test_users.keys():
             tester.test_client_financial_summary(role, client_id)
+
+    print("\n📅 PHASE 8: Itinerary Management Testing (New Feature)")
+    print("-" * 40)
+    
+    # Test itinerary management endpoints - NEW FEATURE TEST
+    if agent_trip_id:
+        for role in test_users.keys():
+            tester.test_itinerary_management(role, agent_trip_id)
+
+    print("\n🔔 PHASE 9: Notifications System Testing (New Feature)")
+    print("-" * 40)
+    
+    # Test notifications system - NEW FEATURE TEST
+    for role in test_users.keys():
+        tester.test_notifications_system(role)
+
+    print("\n👥 PHASE 10: Enhanced Trip and Client Management")
+    print("-" * 40)
+    
+    # Test enhanced endpoints
+    for role in test_users.keys():
+        tester.test_trips_with_details(role)
+        tester.test_get_clients_list(role)
     
     print("\n" + "=" * 50)
     print(f"📊 FINAL RESULTS: {tester.tests_passed}/{tester.tests_run} tests passed")
