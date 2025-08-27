@@ -117,6 +117,10 @@ const AgentDashboard = () => {
     }
   };
 
+  const handleEditTrip = (tripId) => {
+    navigate(`/manage-trips?edit=${tripId}`);
+  };
+
   if (loading) {
     return (
       <Dashboard>
