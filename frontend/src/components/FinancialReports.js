@@ -69,6 +69,7 @@ const FinancialReports = () => {
       setYearlyData(response.data);
     } catch (error) {
       console.error('Error fetching yearly data:', error);
+      console.error('Error details:', error.response?.data || error.message);
       // Set empty yearly data to prevent UI errors
       setYearlyData({
         year: selectedYear,
