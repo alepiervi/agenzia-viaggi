@@ -328,6 +328,15 @@ function App() {
               } 
             />
 
+            <Route 
+              path="/trips/:tripId/itinerary" 
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'agent']}>
+                  <ItineraryManager />
+                </ProtectedRoute>
+              } 
+            />
+
             {/* Default Route */}
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
           </Routes>
