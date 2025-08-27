@@ -229,25 +229,35 @@ const AdminDashboard = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               {trips.length > 0 ? (
-                trips.map((trip) => (
-                  <div key={trip.id} className="flex items-center justify-between p-4 border border-slate-200 rounded-lg hover:shadow-md transition-shadow">
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-slate-800">{trip.title}</h4>
-                      <p className="text-sm text-slate-600">{trip.destination}</p>
-                      <div className="flex items-center gap-2 mt-2">
-                        <Badge className={`text-xs ${getTripTypeBadgeClass(trip.trip_type)}`}>
-                          {trip.trip_type}
-                        </Badge>
-                        <Badge className={`text-xs ${getStatusBadgeClass(trip.status)}`}>
-                          {trip.status}
-                        </Badge>
+                trips.map((tripDetail) => {
+                  const trip = tripDetail.trip;
+                  const agent = tripDetail.agent;
+                  
+                  return (
+                    <div key={trip.id} className="flex items-center justify-between p-4 border border-slate-200 rounded-lg hover:shadow-md transition-shadow">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h4 className="font-semibold text-slate-800">{trip.title}</h4>
+                          <Badge className={`text-xs ${getTripTypeBadgeClass(trip.trip_type)}`}>
+                            {trip.trip_type}
+                          </Badge>
+                          <Badge className={`text-xs ${getStatusBadgeClass(trip.status)}`}>
+                            {trip.status}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-slate-600">{trip.destination}</p>
+                        <div className="flex items-center gap-4 mt-2">
+                          <span className="text-xs text-slate-500">
+                            {formatDate(trip.start_date)} - {formatDate(trip.end_date)}
+                          </span>
+                          {agent && (
+                            <span className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                              👨‍💼 {agent.first_name} {agent.last_name}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm text-slate-500">
-                        {formatDate(trip.start_date)} - {formatDate(trip.end_date)}
-                      </p>
-                      <div className="flex gap-1 mt-2">
+                      <div className="flex gap-1 ml-4">
                         <Button size="sm" variant="ghost">
                           <Eye size={14} />
                         </Button>
@@ -256,8 +266,8 @@ const AdminDashboard = () => {
                         </Button>
                       </div>
                     </div>
-                  </div>
-                ))
+                  );
+                })
               ) : (
                 <p className="text-slate-500 text-center py-8">
                   Nessun viaggio trovato
