@@ -664,6 +664,17 @@ def main():
         tester.test_analytics_yearly_summary(role, current_year)
         tester.test_analytics_yearly_summary(role, current_year - 1)  # Previous year
     
+    print("\n💼 PHASE 7: Client Financial Summary Testing (New Feature)")
+    print("-" * 40)
+    
+    # Test client financial summary endpoint - NEW FEATURE TEST
+    if "client" in tester.users:
+        client_id = tester.users["client"]["id"]
+        
+        # Test for all roles
+        for role in test_users.keys():
+            tester.test_client_financial_summary(role, client_id)
+    
     print("\n" + "=" * 50)
     print(f"📊 FINAL RESULTS: {tester.tests_passed}/{tester.tests_run} tests passed")
     
