@@ -31,7 +31,6 @@ const NavigationItems = () => {
           { path: '/manage-trips', icon: MapPin, label: 'Gestione Viaggi' },
           { path: '/users', icon: Users, label: 'Gestione Utenti' },
           { path: '/notifications', icon: Bell, label: 'Notifiche' },
-          { path: '/financial-reports', icon: TrendingUp, label: 'Analytics' },
           { path: '/financial-reports', icon: FileText, label: 'Report Finanziari' }
         ];
       
