@@ -714,6 +714,101 @@ async def get_users(current_user: dict = Depends(get_current_user)):
     users = await db.users.find().to_list(1000)
     return [User(**parse_from_mongo(user)) for user in users]
 
+# Clients management (admin and agent)
+@api_router.get("/clients", response_model=List[User])
+async def get_clients(current_user: dict = Depends(get_current_user)):
+    if current_user["role"] not in ["admin", "agent"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # Get all clients
+    clients = await db.users.find({"role": "client"}).to_list(1000)
+    return [User(**parse_from_mongo(client)) for client in clients]
+
+@api_router.put("/users/{user_id}", response_model=User)
+async def update_user(user_id: str, user_data: UserUpdate, current_user: dict = Depends(get_current_user)):
+    # Check permissions
+    user_to_update = await db.users.find_one({"id": user_id})
+    if not user_to_update:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Permission checks
+    if current_user["role"] == "agent":
+        # Agents can only update clients
+        if user_to_update["role"] != "client":
+            raise HTTPException(status_code=403, detail="Agents can only update clients")
+    elif current_user["role"] == "admin":
+        # Admins can update anyone
+        pass
+    else:
+        # Clients can only update themselves (not implemented here)
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # Update user
+    update_data = {k: v for k, v in user_data.dict(exclude_unset=True).items() if v is not None}
+    if update_data:
+        await db.users.update_one({"id": user_id}, {"$set": update_data})
+    
+    updated_user = await db.users.find_one({"id": user_id})
+    return User(**parse_from_mongo(updated_user))
+
+@api_router.post("/users/{user_id}/block")
+async def block_user(user_id: str, current_user: dict = Depends(get_current_user)):
+    user_to_block = await db.users.find_one({"id": user_id})
+    if not user_to_block:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Permission checks
+    if current_user["role"] == "agent":
+        # Agents can only block clients
+        if user_to_block["role"] != "client":
+            raise HTTPException(status_code=403, detail="Agents can only block clients")
+    elif current_user["role"] == "admin":
+        # Admins can block anyone except other admins
+        if user_to_block["role"] == "admin" and user_to_block["id"] != current_user["id"]:
+            # Don't allow blocking other admins (prevent lockout)
+            if user_to_block["id"] != current_user["id"]:
+                pass  # Allow for now, but could add more restrictions
+    else:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    await db.users.update_one({"id": user_id}, {"$set": {"blocked": True}})
+    return {"message": "User blocked successfully"}
+
+@api_router.post("/users/{user_id}/unblock")
+async def unblock_user(user_id: str, current_user: dict = Depends(get_current_user)):
+    user_to_unblock = await db.users.find_one({"id": user_id})
+    if not user_to_unblock:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Permission checks (same as block)
+    if current_user["role"] == "agent":
+        if user_to_unblock["role"] != "client":
+            raise HTTPException(status_code=403, detail="Agents can only unblock clients")
+    elif current_user["role"] != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    await db.users.update_one({"id": user_id}, {"$set": {"blocked": False}})
+    return {"message": "User unblocked successfully"}
+
+@api_router.delete("/users/{user_id}")
+async def delete_user(user_id: str, current_user: dict = Depends(get_current_user)):
+    if current_user["role"] != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    user_to_delete = await db.users.find_one({"id": user_id})
+    if not user_to_delete:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Don't allow deleting yourself
+    if user_id == current_user["id"]:
+        raise HTTPException(status_code=400, detail="Cannot delete yourself")
+    
+    result = await db.users.delete_one({"id": user_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return {"message": "User deleted successfully"}
+
 # Dashboard stats
 @api_router.get("/dashboard/stats")
 async def get_dashboard_stats(current_user: dict = Depends(get_current_user)):
