@@ -39,6 +39,7 @@ const ItineraryManager = () => {
   const [itineraries, setItineraries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingDay, setEditingDay] = useState(null);
+  const [editingData, setEditingData] = useState({}); // Store editing data separately
   const [newItinerary, setNewItinerary] = useState({
     day_number: 1,
     date: null,
