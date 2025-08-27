@@ -150,6 +150,37 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
 
 // Main App Component
 function App() {
+  // Add global error handler for MetaMask errors
+  useEffect(() => {
+    const handleError = (event) => {
+      const error = event.error || event.reason;
+      if (error && error.message && error.message.includes('MetaMask')) {
+        console.warn('MetaMask error suppressed:', error.message);
+        event.preventDefault();
+        return false;
+      }
+    };
+
+    const handleUnhandledRejection = (event) => {
+      const error = event.reason;
+      if (error && error.message && error.message.includes('MetaMask')) {
+        console.warn('MetaMask promise rejection suppressed:', error.message);
+        event.preventDefault();
+        return false;
+      }
+    };
+
+    // Add error listeners
+    window.addEventListener('error', handleError);
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('error', handleError);
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+    };
+  }, []);
+
   return (
     <AuthProvider>
       <Router>
