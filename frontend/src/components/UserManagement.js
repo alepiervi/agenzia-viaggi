@@ -51,16 +51,15 @@ const UserManagement = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API}/users`);
       
-      // Filter users based on current user role
-      let filteredUsers = response.data;
+      // Use appropriate endpoint based on user role
+      let endpoint = `${API}/users`; // Admin endpoint
       if (currentUser?.role === 'agent') {
-        // Agents can only see clients
-        filteredUsers = response.data.filter(user => user.role === 'client');
+        endpoint = `${API}/clients`; // Agent endpoint (only clients)
       }
       
-      setUsers(filteredUsers);
+      const response = await axios.get(endpoint);
+      setUsers(response.data);
     } catch (error) {
       console.error('Error fetching users:', error);
       toast.error('Errore nel caricamento degli utenti');
