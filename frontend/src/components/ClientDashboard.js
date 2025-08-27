@@ -246,6 +246,83 @@ const ClientDashboard = () => {
           </Card>
         </div>
 
+        {/* Financial Summary - Only for clients */}
+        {user?.role === 'client' && financialSummary && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <DollarSign size={20} className="text-green-600" />
+                Riepilogo Finanziario
+              </CardTitle>
+              <CardDescription>
+                Panoramica dei tuoi investimenti e costi di viaggio
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-blue-800">Prenotazioni Totali</p>
+                      <p className="text-2xl font-bold text-blue-600">{financialSummary.total_bookings}</p>
+                    </div>
+                    <CreditCard className="h-8 w-8 text-blue-600" />
+                  </div>
+                </div>
+                
+                <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-green-800">Fatturato Totale</p>
+                      <p className="text-2xl font-bold text-green-600">{formatCurrency(financialSummary.total_revenue)}</p>
+                    </div>
+                    <DollarSign className="h-8 w-8 text-green-600" />
+                  </div>
+                </div>
+                
+                <div className="p-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-orange-800">Sconti Applicati</p>
+                      <p className="text-2xl font-bold text-orange-600">{formatCurrency(financialSummary.total_discounts)}</p>
+                    </div>
+                    <Percent className="h-8 w-8 text-orange-600" />
+                  </div>
+                </div>
+                
+                <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-purple-800">Commissioni Totali</p>
+                      <p className="text-2xl font-bold text-purple-600">{formatCurrency(financialSummary.total_gross_commission)}</p>
+                    </div>
+                    <TrendingUp className="h-8 w-8 text-purple-600" />
+                  </div>
+                </div>
+              </div>
+              
+              {/* Additional financial details */}
+              <div className="mt-6 p-4 border rounded-lg bg-slate-50">
+                <h4 className="font-semibold text-slate-800 mb-3">Dettaglio Commissioni</h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-slate-600">Commissioni Lorde:</span>
+                    <span className="font-semibold">{formatCurrency(financialSummary.total_gross_commission)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-600">Commissioni Fornitore:</span>
+                    <span className="font-semibold">{formatCurrency(financialSummary.total_supplier_commission)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-600">Commissioni Agente:</span>
+                    <span className="font-semibold">{formatCurrency(financialSummary.total_agent_commission)}</span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Trips List */}
         <Card>
           <CardHeader>
