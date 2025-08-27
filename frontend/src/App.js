@@ -53,7 +53,7 @@ const AuthProvider = ({ children }) => {
 
   const getCurrentUser = async () => {
     try {
-      const response = await axios.get(`${FINAL_API}/auth/me`);
+      const response = await axios.get(`${API}/auth/me`);
       setUser(response.data);
     } catch (error) {
       console.error('Failed to get current user:', error);
@@ -65,8 +65,8 @@ const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      console.log('Attempting login with API:', `${FINAL_API}/auth/login`);
-      const response = await axios.post(`${FINAL_API}/auth/login`, { email, password });
+      console.log('Attempting login with API:', `${API}/auth/login`);
+      const response = await axios.post(`${API}/auth/login`, { email, password });
       const { user, token } = response.data;
       
       console.log('Login successful:', user);
@@ -88,7 +88,7 @@ const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     try {
-      const response = await axios.post(`${FINAL_API}/auth/register`, userData);
+      const response = await axios.post(`${API}/auth/register`, userData);
       const { user, token } = response.data;
       
       setUser(user);
