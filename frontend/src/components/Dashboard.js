@@ -4,6 +4,7 @@ import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Avatar, AvatarFallback } from './ui/avatar';
 import { Badge } from './ui/badge';
+import NavigationItems from './NavigationItems';
 import { 
   LogOut, 
   User, 
