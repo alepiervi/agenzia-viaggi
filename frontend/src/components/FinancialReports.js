@@ -46,7 +46,17 @@ const FinancialReports = () => {
       setAnalytics(response.data);
     } catch (error) {
       console.error('Error fetching analytics:', error);
-      toast.error('Errore nel caricamento delle analytics');
+      // Set empty analytics to prevent UI errors
+      setAnalytics({
+        year: selectedYear,
+        total_confirmed_trips: 0,
+        total_revenue: 0,
+        total_gross_commission: 0,
+        total_supplier_commission: 0,
+        total_agent_commission: 0,
+        trips: []
+      });
+      toast.error('Analytics non disponibili per questo periodo');
     } finally {
       setLoading(false);
     }
@@ -58,6 +68,16 @@ const FinancialReports = () => {
       setYearlyData(response.data);
     } catch (error) {
       console.error('Error fetching yearly data:', error);
+      // Set empty yearly data to prevent UI errors
+      setYearlyData({
+        year: selectedYear,
+        total_confirmed_trips: 0,
+        total_revenue: 0,
+        total_gross_commission: 0,
+        total_supplier_commission: 0,
+        total_agent_commission: 0
+      });
+      toast.error('Dati annuali non disponibili');
     }
   };
 
