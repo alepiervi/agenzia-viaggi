@@ -739,6 +739,204 @@ async def get_dashboard_stats(current_user: dict = Depends(get_current_user)):
             })
         }
 
+# Trip Administration endpoints (Admin/Agent only)
+@api_router.post("/trips/{trip_id}/admin", response_model=TripAdmin)
+async def create_trip_admin(trip_id: str, admin_data: TripAdminCreate, current_user: dict = Depends(get_current_user)):
+    if current_user["role"] not in ["admin", "agent"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # Check if trip exists and user has access
+    trip = await db.trips.find_one({"id": trip_id})
+    if not trip:
+        raise HTTPException(status_code=404, detail="Trip not found")
+    
+    if current_user["role"] == "agent" and trip["agent_id"] != current_user["id"]:
+        raise HTTPException(status_code=403, detail="Not authorized to manage this trip")
+    
+    # Calculate derived fields
+    admin_dict = prepare_for_mongo(admin_data.dict())
+    calculated_data = calculate_trip_admin_fields(admin_dict)
+    
+    trip_admin = TripAdmin(**calculated_data)
+    admin_dict = prepare_for_mongo(trip_admin.dict())
+    
+    await db.trip_admin.insert_one(admin_dict)
+    return trip_admin
+
+@api_router.get("/trips/{trip_id}/admin", response_model=Optional[TripAdmin])
+async def get_trip_admin(trip_id: str, current_user: dict = Depends(get_current_user)):
+    if current_user["role"] not in ["admin", "agent"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    trip_admin = await db.trip_admin.find_one({"trip_id": trip_id})
+    if trip_admin:
+        # Get installments and recalculate
+        installments = await db.payment_installments.find({"trip_admin_id": trip_admin["id"]}).to_list(1000)
+        calculated_data = calculate_trip_admin_fields(trip_admin, installments)
+        return TripAdmin(**parse_from_mongo(calculated_data))
+    return None
+
+@api_router.put("/trip-admin/{admin_id}", response_model=TripAdmin)
+async def update_trip_admin(admin_id: str, admin_data: TripAdminUpdate, current_user: dict = Depends(get_current_user)):
+    if current_user["role"] not in ["admin", "agent"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    existing = await db.trip_admin.find_one({"id": admin_id})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Trip admin not found")
+    
+    # Update fields
+    update_data = {k: v for k, v in admin_data.dict(exclude_unset=True).items() if v is not None}
+    update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
+    
+    merged_data = {**existing, **prepare_for_mongo(update_data)}
+    
+    # Get installments and recalculate
+    installments = await db.payment_installments.find({"trip_admin_id": admin_id}).to_list(1000)
+    calculated_data = calculate_trip_admin_fields(merged_data, installments)
+    
+    await db.trip_admin.update_one({"id": admin_id}, {"$set": calculated_data})
+    
+    updated_admin = await db.trip_admin.find_one({"id": admin_id})
+    return TripAdmin(**parse_from_mongo(updated_admin))
+
+# Payment Installments endpoints
+@api_router.post("/trip-admin/{admin_id}/payments", response_model=PaymentInstallment)
+async def create_payment_installment(admin_id: str, payment_data: PaymentInstallmentCreate, current_user: dict = Depends(get_current_user)):
+    if current_user["role"] not in ["admin", "agent"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    payment = PaymentInstallment(**payment_data.dict())
+    payment_dict = prepare_for_mongo(payment.dict())
+    
+    await db.payment_installments.insert_one(payment_dict)
+    
+    # Recalculate trip admin balance
+    installments = await db.payment_installments.find({"trip_admin_id": admin_id}).to_list(1000)
+    trip_admin = await db.trip_admin.find_one({"id": admin_id})
+    if trip_admin:
+        calculated_data = calculate_trip_admin_fields(trip_admin, installments)
+        await db.trip_admin.update_one({"id": admin_id}, {"$set": {"balance_due": calculated_data["balance_due"]}})
+    
+    return payment
+
+@api_router.get("/trip-admin/{admin_id}/payments", response_model=List[PaymentInstallment])
+async def get_payment_installments(admin_id: str, current_user: dict = Depends(get_current_user)):
+    if current_user["role"] not in ["admin", "agent"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    payments = await db.payment_installments.find({"trip_admin_id": admin_id}).to_list(1000)
+    return [PaymentInstallment(**parse_from_mongo(payment)) for payment in payments]
+
+@api_router.delete("/payments/{payment_id}")
+async def delete_payment_installment(payment_id: str, current_user: dict = Depends(get_current_user)):
+    if current_user["role"] not in ["admin", "agent"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # Get payment to find admin_id for recalculation
+    payment = await db.payment_installments.find_one({"id": payment_id})
+    if not payment:
+        raise HTTPException(status_code=404, detail="Payment not found")
+    
+    admin_id = payment["trip_admin_id"]
+    
+    # Delete payment
+    await db.payment_installments.delete_one({"id": payment_id})
+    
+    # Recalculate trip admin balance
+    installments = await db.payment_installments.find({"trip_admin_id": admin_id}).to_list(1000)
+    trip_admin = await db.trip_admin.find_one({"id": admin_id})
+    if trip_admin:
+        calculated_data = calculate_trip_admin_fields(trip_admin, installments)
+        await db.trip_admin.update_one({"id": admin_id}, {"$set": {"balance_due": calculated_data["balance_due"]}})
+    
+    return {"message": "Payment deleted successfully"}
+
+# Financial Analytics endpoints
+@api_router.get("/analytics/agent-commissions")
+async def get_agent_commission_analytics(
+    year: int = None, 
+    agent_id: str = None,
+    current_user: dict = Depends(get_current_user)
+):
+    if current_user["role"] not in ["admin", "agent"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # If agent, can only see own data
+    if current_user["role"] == "agent":
+        agent_id = current_user["id"]
+    
+    # Build query
+    query = {}
+    if agent_id:
+        # Get trips for this agent
+        agent_trips = await db.trips.find({"agent_id": agent_id}).to_list(1000)
+        trip_ids = [trip["id"] for trip in agent_trips]
+        query["trip_id"] = {"$in": trip_ids}
+    
+    if year:
+        start_date = datetime(year, 1, 1, tzinfo=timezone.utc)
+        end_date = datetime(year + 1, 1, 1, tzinfo=timezone.utc)
+        query["practice_confirm_date"] = {
+            "$gte": start_date.isoformat(),
+            "$lt": end_date.isoformat()
+        }
+    
+    # Get confirmed trip admin records
+    query["status"] = "confirmed"
+    
+    confirmed_trips = await db.trip_admin.find(query).to_list(1000)
+    
+    # Calculate totals
+    total_revenue = sum(trip.get("gross_amount", 0) for trip in confirmed_trips)
+    total_gross_commission = sum(trip.get("gross_commission", 0) for trip in confirmed_trips)
+    total_supplier_commission = sum(trip.get("supplier_commission", 0) for trip in confirmed_trips)
+    total_agent_commission = sum(trip.get("agent_commission", 0) for trip in confirmed_trips)
+    
+    return {
+        "year": year or "all_time",
+        "agent_id": agent_id,
+        "total_confirmed_trips": len(confirmed_trips),
+        "total_revenue": total_revenue,
+        "total_gross_commission": total_gross_commission,
+        "total_supplier_commission": total_supplier_commission,
+        "total_agent_commission": total_agent_commission,
+        "trips": confirmed_trips
+    }
+
+@api_router.get("/analytics/yearly-summary/{year}")
+async def get_yearly_summary(year: int, current_user: dict = Depends(get_current_user)):
+    if current_user["role"] not in ["admin", "agent"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    start_date = datetime(year, 1, 1, tzinfo=timezone.utc)
+    end_date = datetime(year + 1, 1, 1, tzinfo=timezone.utc)
+    
+    query = {
+        "status": "confirmed",
+        "practice_confirm_date": {
+            "$gte": start_date.isoformat(),
+            "$lt": end_date.isoformat()
+        }
+    }
+    
+    # If agent, filter by their trips only
+    if current_user["role"] == "agent":
+        agent_trips = await db.trips.find({"agent_id": current_user["id"]}).to_list(1000)
+        trip_ids = [trip["id"] for trip in agent_trips]
+        query["trip_id"] = {"$in": trip_ids}
+    
+    confirmed_trips = await db.trip_admin.find(query).to_list(1000)
+    
+    return {
+        "year": year,
+        "total_confirmed_trips": len(confirmed_trips),
+        "total_revenue": sum(trip.get("gross_amount", 0) for trip in confirmed_trips),
+        "total_gross_commission": sum(trip.get("gross_commission", 0) for trip in confirmed_trips),
+        "total_supplier_commission": sum(trip.get("supplier_commission", 0) for trip in confirmed_trips),
+        "total_agent_commission": sum(trip.get("agent_commission", 0) for trip in confirmed_trips)
+    }
+
 # Include router
 app.include_router(api_router)
 
