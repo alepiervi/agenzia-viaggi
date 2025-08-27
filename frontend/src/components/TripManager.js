@@ -33,6 +33,7 @@ const API = `${BACKEND_URL}/api`;
 
 const TripManager = () => {
   const navigate = useNavigate();
+  const { user: currentUser } = useAuth();
   const [searchParams] = useSearchParams();
   const editTripId = searchParams.get('edit');
   const isEditMode = Boolean(editTripId);
