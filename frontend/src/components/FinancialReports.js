@@ -46,6 +46,7 @@ const FinancialReports = () => {
       setAnalytics(response.data);
     } catch (error) {
       console.error('Error fetching analytics:', error);
+      console.error('Error details:', error.response?.data || error.message);
       // Set empty analytics to prevent UI errors
       setAnalytics({
         year: selectedYear,
