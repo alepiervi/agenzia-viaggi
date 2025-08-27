@@ -30,8 +30,9 @@ const NavigationItems = () => {
           { path: '/dashboard', icon: BarChart3, label: 'Dashboard', active: true },
           { path: '/manage-trips', icon: MapPin, label: 'Gestione Viaggi' },
           { path: '/users', icon: Users, label: 'Gestione Utenti' },
+          { path: '/notifications', icon: Bell, label: 'Notifiche' },
           { path: '/analytics', icon: TrendingUp, label: 'Analytics' },
-          { path: '/reports', icon: FileText, label: 'Report Finanziari' }
+          { path: '/financial-reports', icon: FileText, label: 'Report Finanziari' }
         ];
       
       case 'agent':
