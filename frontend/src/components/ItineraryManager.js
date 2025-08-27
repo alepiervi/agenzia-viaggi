@@ -99,19 +99,20 @@ const ItineraryManager = () => {
 
   const getDefaultItineraryType = () => {
     switch (trip?.trip_type) {
-      case 'cruise': return 'cruise_port';
+      case 'cruise': return 'port_day';
       case 'resort': return 'resort_day';
       case 'tour': return 'tour_day';
-      default: return 'cruise_port';
+      default: return 'port_day';
     }
   };
 
   const getItineraryTypeOptions = () => {
     const baseOptions = [
-      { value: 'cruise_port', label: 'Porto Crociera' },
-      { value: 'cruise_sea', label: 'Giorno in Mare' },
+      { value: 'port_day', label: 'Porto Crociera' },
+      { value: 'sea_day', label: 'Giorno in Mare' },
       { value: 'resort_day', label: 'Giorno Resort' },
-      { value: 'tour_day', label: 'Giorno Tour' }
+      { value: 'tour_day', label: 'Giorno Tour' },
+      { value: 'free_day', label: 'Giorno Libero' }
     ];
     
     return baseOptions;
@@ -119,10 +120,11 @@ const ItineraryManager = () => {
 
   const getItineraryTypeColor = (type) => {
     switch (type) {
-      case 'cruise_port': return 'bg-blue-100 text-blue-800';
-      case 'cruise_sea': return 'bg-cyan-100 text-cyan-800';
+      case 'port_day': return 'bg-blue-100 text-blue-800';
+      case 'sea_day': return 'bg-cyan-100 text-cyan-800';
       case 'resort_day': return 'bg-green-100 text-green-800';
       case 'tour_day': return 'bg-orange-100 text-orange-800';
+      case 'free_day': return 'bg-purple-100 text-purple-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
