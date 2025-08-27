@@ -195,8 +195,36 @@ const TripManager = () => {
       };
 
       if (isEditMode) {
-        // Update existing trip
-        tripResponse = await axios.put(`${API}/trips/${editTripId}`, tripData);
+        // Update existing trip - send only changed fields
+        const updateData = {};
+        
+        // Only include fields that have actually changed
+        if (formData.title !== existingTrip.title) updateData.title = formData.title;
+        if (formData.destination !== existingTrip.destination) updateData.destination = formData.destination;
+        if (formData.description !== existingTrip.description) updateData.description = formData.description;
+        if (formData.client_id !== existingTrip.client_id) updateData.client_id = formData.client_id;
+        if (formData.trip_type !== existingTrip.trip_type) updateData.trip_type = formData.trip_type;
+        
+        // Handle dates carefully
+        const existingStartDate = new Date(existingTrip.start_date).toISOString().split('T')[0];
+        const newStartDate = formData.start_date.toISOString().split('T')[0];
+        if (existingStartDate !== newStartDate) {
+          updateData.start_date = formData.start_date.toISOString();
+        }
+        
+        const existingEndDate = new Date(existingTrip.end_date).toISOString().split('T')[0];
+        const newEndDate = formData.end_date.toISOString().split('T')[0];
+        if (existingEndDate !== newEndDate) {
+          updateData.end_date = formData.end_date.toISOString();
+        }
+        
+        // Only make the request if there are changes
+        if (Object.keys(updateData).length > 0) {
+          tripResponse = await axios.put(`${API}/trips/${editTripId}`, updateData);
+        } else {
+          // No trip changes, just use existing data
+          tripResponse = { data: existingTrip };
+        }
       } else {
         // Create new trip
         tripResponse = await axios.post(`${API}/trips`, tripData);
