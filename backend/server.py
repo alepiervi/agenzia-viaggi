@@ -1179,6 +1179,9 @@ async def get_client_financial_summary(client_id: str, current_user: dict = Depe
     # Get all trip admin data for client's trips
     trip_admin_data = await db.trip_admin.find({"trip_id": {"$in": trip_ids}}).to_list(1000)
     
+    # Parse MongoDB data to remove ObjectIds
+    parsed_admin_data = [parse_from_mongo(admin) for admin in trip_admin_data]
+    
     # Calculate totals
     total_bookings = len(trip_admin_data)
     total_revenue = sum(admin.get("gross_amount", 0) for admin in trip_admin_data)
@@ -1203,7 +1206,7 @@ async def get_client_financial_summary(client_id: str, current_user: dict = Depe
         "total_gross_commission": total_gross_commission,
         "total_supplier_commission": total_supplier_commission,
         "total_agent_commission": total_agent_commission,
-        "bookings": trip_admin_data
+        "bookings": parsed_admin_data
     }
 
 # Include router
