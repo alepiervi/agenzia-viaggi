@@ -29,8 +29,10 @@ const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 const ClientDashboard = () => {
+  const { user } = useAuth();
   const [stats, setStats] = useState({});
   const [trips, setTrips] = useState([]);
+  const [financialSummary, setFinancialSummary] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
