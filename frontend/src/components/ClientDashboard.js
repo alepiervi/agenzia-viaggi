@@ -67,6 +67,13 @@ const ClientDashboard = () => {
     }
   };
 
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('it-IT', {
+      style: 'currency',
+      currency: 'EUR'
+    }).format(amount || 0);
+  };
+
   const getTripTypeIcon = (type) => {
     switch (type) {
       case 'cruise':
