@@ -1310,7 +1310,10 @@ async def get_payment_deadlines(current_user: dict = Depends(get_current_user)):
             if isinstance(departure_date_str, str):
                 departure_date = datetime.fromisoformat(departure_date_str.replace('Z', '+00:00'))
             else:
-                departure_date = departure_date_str.replace(tzinfo=timezone.utc) if departure_date_str.tzinfo is None else departure_date_str
+                # Handle datetime object
+                departure_date = departure_date_str
+                if departure_date.tzinfo is None:
+                    departure_date = departure_date.replace(tzinfo=timezone.utc)
             days_until_departure = (departure_date - today).days
             
             notifications.append({
