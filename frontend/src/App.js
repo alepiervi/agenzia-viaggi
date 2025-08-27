@@ -193,6 +193,15 @@ function App() {
               } 
             />
 
+            <Route 
+              path="/trip-admin/:tripId" 
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'agent']}>
+                  <TripAdmin />
+                </ProtectedRoute>
+              } 
+            />
+
             {/* Default Route */}
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
           </Routes>
