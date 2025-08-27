@@ -298,16 +298,8 @@ const ItineraryManager = () => {
                         <Label htmlFor={`title-${day.day_number}`}>Titolo *</Label>
                         <Input
                           id={`title-${day.day_number}`}
-                          value={day.title}
-                          onChange={(e) => {
-                            const updatedDays = days.map(d => 
-                              d.day_number === day.day_number 
-                                ? { ...d, title: e.target.value }
-                                : d
-                            );
-                            setItineraries(prev => [...prev]);
-                            day.title = e.target.value;
-                          }}
+                          value={editingData.title || ''}
+                          onChange={(e) => updateEditingData('title', e.target.value)}
                           placeholder="es. Barcellona - Visita città"
                         />
                       </div>
