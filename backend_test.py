@@ -488,6 +488,153 @@ class TravelAgencyAPITester:
             
         return success
 
+    def test_itinerary_management(self, role: str, trip_id: str):
+        """Test itinerary management endpoints - NEW FEATURE"""
+        if role not in self.tokens:
+            print(f"❌ No token for {role}")
+            return False
+            
+        # Test creating itinerary
+        itinerary_data = {
+            "trip_id": trip_id,
+            "day_number": 1,
+            "date": (datetime.now() + timedelta(days=31)).isoformat(),
+            "title": "Arrival in Rome",
+            "description": "Arrive at Rome airport, transfer to hotel, evening city tour",
+            "itinerary_type": "tour_day"
+        }
+        
+        expected_status = 200 if role in ["admin", "agent"] else 403
+        
+        success1, response1 = self.run_test(
+            f"Create itinerary ({role})",
+            "POST",
+            "itineraries",
+            expected_status,
+            data=itinerary_data,
+            token=self.tokens[role]
+        )
+        
+        itinerary_id = None
+        if success1 and role in ["admin", "agent"] and 'id' in response1:
+            itinerary_id = response1['id']
+            print(f"   ✅ Itinerary created with ID: {itinerary_id}")
+        
+        # Test getting itineraries for trip
+        success2, response2 = self.run_test(
+            f"Get trip itineraries ({role})",
+            "GET",
+            f"trips/{trip_id}/itineraries",
+            200,  # All authenticated users can view
+            token=self.tokens[role]
+        )
+        
+        if success2:
+            print(f"   ✅ Retrieved {len(response2)} itineraries for trip")
+        
+        # Test updating itinerary if we created one
+        if itinerary_id and role in ["admin", "agent"]:
+            updated_itinerary_data = {
+                "trip_id": trip_id,
+                "day_number": 1,
+                "date": (datetime.now() + timedelta(days=31)).isoformat(),
+                "title": "Updated: Arrival in Rome",
+                "description": "Updated: Arrive at Rome airport, luxury transfer to hotel, premium evening city tour",
+                "itinerary_type": "tour_day"
+            }
+            
+            success3, response3 = self.run_test(
+                f"Update itinerary ({role})",
+                "PUT",
+                f"itineraries/{itinerary_id}",
+                200,
+                data=updated_itinerary_data,
+                token=self.tokens[role]
+            )
+            
+            if success3:
+                print(f"   ✅ Itinerary updated successfully")
+                
+            return success1 and success2 and success3
+        
+        return success1 and success2
+
+    def test_notifications_system(self, role: str):
+        """Test notifications system for payment deadlines - NEW FEATURE"""
+        if role not in self.tokens:
+            print(f"❌ No token for {role}")
+            return False
+            
+        expected_status = 200 if role in ["admin", "agent"] else 403
+        
+        success, response = self.run_test(
+            f"Get payment deadline notifications ({role})",
+            "GET",
+            "notifications/payment-deadlines",
+            expected_status,
+            token=self.tokens[role]
+        )
+        
+        if success and role in ["admin", "agent"]:
+            notifications = response.get('notifications', [])
+            print(f"   ✅ Retrieved {len(notifications)} payment deadline notifications")
+            print(f"   🔴 High priority: {response.get('high_priority_count', 0)}")
+            print(f"   🟡 Medium priority: {response.get('medium_priority_count', 0)}")
+            print(f"   🟢 Low priority: {response.get('low_priority_count', 0)}")
+            print(f"   📊 Total notifications: {response.get('total_count', 0)}")
+            
+            # Show sample notifications if any
+            for i, notification in enumerate(notifications[:3]):  # Show first 3
+                print(f"   📋 Notification {i+1}: {notification.get('title', 'N/A')} - {notification.get('priority', 'N/A')} priority")
+            
+        return success
+
+    def test_trips_with_details(self, role: str):
+        """Test trips with agent and client details endpoint"""
+        if role not in self.tokens:
+            print(f"❌ No token for {role}")
+            return False
+            
+        success, response = self.run_test(
+            f"Get trips with details ({role})",
+            "GET",
+            "trips/with-details",
+            200,
+            token=self.tokens[role]
+        )
+        
+        if success:
+            print(f"   ✅ Retrieved {len(response)} trips with agent/client details")
+            # Check if trips have agent and client info
+            for i, trip_detail in enumerate(response[:2]):  # Check first 2
+                trip = trip_detail.get('trip', {})
+                agent = trip_detail.get('agent', {})
+                client = trip_detail.get('client', {})
+                print(f"   📋 Trip {i+1}: {trip.get('title', 'N/A')} - Agent: {agent.get('first_name', 'N/A')} {agent.get('last_name', 'N/A')} - Client: {client.get('first_name', 'N/A')} {client.get('last_name', 'N/A')}")
+            
+        return success
+
+    def test_get_clients_list(self, role: str):
+        """Test getting clients list (admin/agent only)"""
+        if role not in self.tokens:
+            print(f"❌ No token for {role}")
+            return False
+            
+        expected_status = 200 if role in ["admin", "agent"] else 403
+        
+        success, response = self.run_test(
+            f"Get clients list ({role})",
+            "GET",
+            "clients",
+            expected_status,
+            token=self.tokens[role]
+        )
+        
+        if success and role in ["admin", "agent"]:
+            print(f"   ✅ Retrieved {len(response)} clients")
+            
+        return success
+
 def main():
     print("🚀 Starting Travel Agency API Tests")
     print("=" * 50)
