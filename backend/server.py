@@ -126,6 +126,16 @@ class TripCreate(BaseModel):
     client_id: str
     trip_type: TripType
 
+class TripUpdate(BaseModel):
+    title: Optional[str] = None
+    destination: Optional[str] = None
+    description: Optional[str] = None
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
+    client_id: Optional[str] = None
+    trip_type: Optional[TripType] = None
+    status: Optional[TripStatus] = None
+
 class Itinerary(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     trip_id: str
