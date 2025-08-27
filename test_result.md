@@ -107,23 +107,26 @@ user_problem_statement: "Travel agency application needs fixes for: 1) Trip upda
 backend:
   - task: "Fix trip update API to handle partial updates"
     implemented: true
-    working: false
+    working: true
     file: "server.py"
     stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: false
           agent: "user"
           comment: "User reported persistent error when trying to modify existing trips in 'I Miei Viaggi' section"
+        - working: true
+          agent: "testing"
+          comment: "✅ RESOLVED: Trip update API working perfectly. Tested PUT /api/trips/{trip_id} with TripUpdate model for partial updates. Successfully tested: 1) Single field updates (title only), 2) Multiple field updates (title, description, status), 3) Proper error handling for invalid trip IDs, 4) Authorization working correctly (agents can update own trips, admins can update any trip, clients properly blocked). All partial update functionality working as expected."
 
   - task: "Fix analytics data loading in financial reports"
     implemented: true
-    working: false
+    working: true
     file: "server.py"
     stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: false
           agent: "user"
@@ -131,6 +134,21 @@ backend:
         - working: false
           agent: "main"
           comment: "Added enhanced error logging to FinancialReports.js to capture detailed error information. Backend endpoints need testing."
+        - working: true
+          agent: "testing"
+          comment: "✅ RESOLVED: Analytics endpoints working perfectly after fixing MongoDB ObjectId serialization issue. Tested: 1) GET /api/analytics/agent-commissions (with/without year and agent_id parameters), 2) GET /api/analytics/yearly-summary/{year}. Both endpoints return correct data with proper authorization (admin/agent access, client blocked). Revenue calculations and commission breakdowns working correctly."
+
+  - task: "Create client financial summary endpoint"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "✅ NEW FEATURE WORKING: GET /api/clients/{client_id}/financial-summary endpoint working perfectly. Returns comprehensive financial data including total bookings, confirmed bookings, revenue breakdown, commissions, and detailed booking data. Authorization working correctly (admin/agent access, client blocked). Agent access properly restricted to their own clients only."
 
 frontend:
   - task: "Fix TripManager to send only modified fields in edit mode"
