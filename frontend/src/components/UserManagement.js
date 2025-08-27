@@ -74,6 +74,10 @@ const UserManagement = () => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const handleViewClient = (userId) => {
+    navigate(`/clients/${userId}`);
+  };
+
   const handleCreateUser = () => {
     setEditingUser(null);
     setFormData({
