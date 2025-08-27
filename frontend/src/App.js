@@ -16,6 +16,9 @@ import ClientDashboard from './components/ClientDashboard';
 import TripManager from './components/TripManager';
 import TripView from './components/TripView';
 import TripAdmin from './components/TripAdmin';
+import UserManagement from './components/UserManagement';
+import CalendarView from './components/CalendarView';
+import CommissionCalculator from './components/CommissionCalculator';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
