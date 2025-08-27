@@ -4,6 +4,9 @@ import axios from 'axios';
 import { toast, Toaster } from 'sonner';
 import './App.css';
 
+// Block MetaMask connection attempts
+import './utils/blockMetamask';
+
 // Context
 const AuthContext = React.createContext();
 
