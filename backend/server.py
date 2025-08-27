@@ -1311,15 +1311,20 @@ async def get_payment_deadlines(current_user: dict = Depends(get_current_user)):
         client = await db.users.find_one({"id": trip["client_id"]}) if trip else None
         
         if trip and client:
-            departure_date_str = admin["client_departure_date"]
-            if isinstance(departure_date_str, str):
-                departure_date = datetime.fromisoformat(departure_date_str.replace('Z', '+00:00'))
-            else:
-                # Handle datetime object
-                departure_date = departure_date_str
-                if departure_date.tzinfo is None:
-                    departure_date = departure_date.replace(tzinfo=timezone.utc)
-            days_until_departure = (departure_date - today).days
+            try:
+                departure_date_str = admin["client_departure_date"]
+                if isinstance(departure_date_str, str):
+                    departure_date = datetime.fromisoformat(departure_date_str.replace('Z', '+00:00'))
+                else:
+                    # Handle datetime object
+                    departure_date = departure_date_str
+                    if departure_date.tzinfo is None:
+                        departure_date = departure_date.replace(tzinfo=timezone.utc)
+                days_until_departure = (departure_date - today).days
+            except Exception as e:
+                # Skip this admin record if date parsing fails
+                print(f"Date parsing error for admin {admin.get('id', 'unknown')}: {e}")
+                continue
             
             notifications.append({
                 "id": f"balance_{admin['id']}",
