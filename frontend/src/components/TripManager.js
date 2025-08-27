@@ -116,6 +116,7 @@ const TripManager = () => {
         try {
           const cruiseRes = await axios.get(`${API}/trips/${editTripId}/cruise-info`);
           if (cruiseRes.data) {
+            setCruiseInfoId(cruiseRes.data.id); // Save cruise info ID
             setCruiseData({
               ship_name: cruiseRes.data.ship_name,
               cabin_number: cruiseRes.data.cabin_number,
