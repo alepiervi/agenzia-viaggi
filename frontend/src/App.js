@@ -27,14 +27,14 @@ import ItineraryManager from './components/ItineraryManager';
 import ClientDetail from './components/ClientDetail';
 import NotificationCenter from './components/NotificationCenter';
 
-// Backend configuration - use localhost directly
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+// Use environment backend URL directly
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-// Override for preview environment
-if (BACKEND_URL.includes('preview.emergentagent.com')) {
-  window.API_OVERRIDE = 'http://localhost:8001/api';
-}
+console.log('Backend configuration:', {
+  BACKEND_URL,
+  API
+});
 
 // Auth Provider
 const AuthProvider = ({ children }) => {
