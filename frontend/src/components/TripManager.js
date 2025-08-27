@@ -414,7 +414,7 @@ const TripManager = () => {
             </Card>
 
             {/* Cruise-specific form */}
-            {selectedTripType === 'cruise' && (
+            {(selectedTripType === 'cruise' || (isEditMode && existingTrip?.trip_type === 'cruise')) && (
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
