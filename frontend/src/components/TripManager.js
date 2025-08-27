@@ -109,7 +109,8 @@ const TripManager = () => {
         start_date: new Date(trip.start_date),
         end_date: new Date(trip.end_date),
         client_id: trip.client_id,
-        trip_type: trip.trip_type
+        trip_type: trip.trip_type,
+        status: trip.status || 'draft'
       });
 
       // If it's a cruise, fetch cruise info
