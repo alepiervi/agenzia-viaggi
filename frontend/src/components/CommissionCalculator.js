@@ -1,36 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { toast } from 'sonner';
-import { useAuth } from '../App';
 import Dashboard from './Dashboard';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
-import { Badge } from './ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Separator } from './ui/separator';
 import { 
   Calculator,
-  DollarSign,
-  TrendingUp,
-  BarChart3,
-  Calendar,
-  Percent,
   Euro,
-  RefreshCw
+  RefreshCw,
+  Percent,
+  TrendingUp,
+  Info
 } from 'lucide-react';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
-
 const CommissionCalculator = () => {
-  const { user } = useAuth();
-  const [analytics, setAnalytics] = useState(null);
-  const [yearlyData, setYearlyData] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  
   // Calculator form state
   const [calculatorData, setCalculatorData] = useState({
     gross_amount: 0,
@@ -46,39 +30,8 @@ const CommissionCalculator = () => {
   });
 
   useEffect(() => {
-    fetchAnalytics();
-    fetchYearlyData();
-  }, [selectedYear]);
-
-  useEffect(() => {
     calculateCommissions();
   }, [calculatorData]);
-
-  const fetchAnalytics = async () => {
-    try {
-      setLoading(true);
-      const params = new URLSearchParams();
-      if (selectedYear) params.append('year', selectedYear);
-      if (user?.role === 'agent') params.append('agent_id', user.id);
-      
-      const response = await axios.get(`${API}/analytics/agent-commissions?${params}`);
-      setAnalytics(response.data);
-    } catch (error) {
-      console.error('Error fetching analytics:', error);
-      toast.error('Errore nel caricamento delle analytics');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchYearlyData = async () => {
-    try {
-      const response = await axios.get(`${API}/analytics/yearly-summary/${selectedYear}`);
-      setYearlyData(response.data);
-    } catch (error) {
-      console.error('Error fetching yearly data:', error);
-    }
-  };
 
   const calculateCommissions = () => {
     const { gross_amount, net_amount, discount } = calculatorData;
@@ -89,9 +42,9 @@ const CommissionCalculator = () => {
     const agent_commission = gross_commission - supplier_commission;
     
     setCalculatedResults({
-      gross_commission,
-      supplier_commission,
-      agent_commission
+      gross_commission: Math.max(0, gross_commission), // Prevent negative values
+      supplier_commission: Math.max(0, supplier_commission),
+      agent_commission: Math.max(0, agent_commission)
     });
   };
 
@@ -119,16 +72,6 @@ const CommissionCalculator = () => {
     return `${((value / total) * 100).toFixed(1)}%`;
   };
 
-  // Generate year options
-  const getYearOptions = () => {
-    const currentYear = new Date().getFullYear();
-    const years = [];
-    for (let year = currentYear; year >= currentYear - 5; year--) {
-      years.push(year);
-    }
-    return years;
-  };
-
   return (
     <Dashboard>
       <div className="space-y-6 animate-fade-in">
@@ -136,54 +79,30 @@ const CommissionCalculator = () => {
         <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
           <div>
             <h1 className="text-3xl font-bold text-slate-800">Calcolatore Commissioni</h1>
-            <p className="text-slate-600 mt-1">Calcola commissioni e visualizza analytics finanziarie</p>
-          </div>
-          <div className="flex items-center gap-3">
-            <Label htmlFor="year-select" className="text-sm font-medium">Anno:</Label>
-            <Select value={selectedYear.toString()} onValueChange={(value) => setSelectedYear(parseInt(value))}>
-              <SelectTrigger className="w-32">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {getYearOptions().map((year) => (
-                  <SelectItem key={year} value={year.toString()}>
-                    {year}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => {
-                fetchAnalytics();
-                fetchYearlyData();
-              }}
-              disabled={loading}
-            >
-              <RefreshCw size={14} className="mr-2" />
-              Aggiorna
-            </Button>
+            <p className="text-slate-600 mt-1">Calcola automaticamente le commissioni in base agli importi inseriti</p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Commission Calculator */}
           <div className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Calculator size={20} className="text-blue-600" />
-                  Calcolatore Commissioni
+                  Inserisci Importi
                 </CardTitle>
                 <CardDescription>
-                  Calcola automaticamente le commissioni in base agli importi inseriti
+                  Compila i campi sottostanti per calcolare automaticamente le commissioni
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 gap-4">
+              <CardContent className="space-y-6">
+                <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="gross_amount">Importo Lordo Saldato</Label>
+                    <Label htmlFor="gross_amount" className="flex items-center gap-2">
+                      <span>Importo Lordo Saldato</span>
+                      <Info size={14} className="text-slate-400" title="Importo totale pagato dal cliente" />
+                    </Label>
                     <div className="relative">
                       <Euro className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
                       <Input
@@ -191,16 +110,19 @@ const CommissionCalculator = () => {
                         type="number"
                         step="0.01"
                         min="0"
-                        value={calculatorData.gross_amount}
+                        value={calculatorData.gross_amount || ''}
                         onChange={(e) => handleInputChange('gross_amount', e.target.value)}
-                        className="pl-10"
+                        className="pl-10 text-lg"
                         placeholder="0.00"
                       />
                     </div>
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="net_amount">Importo Netto</Label>
+                    <Label htmlFor="net_amount" className="flex items-center gap-2">
+                      <span>Importo Netto</span>
+                      <Info size={14} className="text-slate-400" title="Costo del servizio fornito" />
+                    </Label>
                     <div className="relative">
                       <Euro className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
                       <Input
@@ -208,16 +130,19 @@ const CommissionCalculator = () => {
                         type="number"
                         step="0.01"
                         min="0"
-                        value={calculatorData.net_amount}
+                        value={calculatorData.net_amount || ''}
                         onChange={(e) => handleInputChange('net_amount', e.target.value)}
-                        className="pl-10"
+                        className="pl-10 text-lg"
                         placeholder="0.00"
                       />
                     </div>
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="discount">Sconto</Label>
+                    <Label htmlFor="discount" className="flex items-center gap-2">
+                      <span>Sconto</span>
+                      <Info size={14} className="text-slate-400" title="Eventuale sconto applicato al cliente" />
+                    </Label>
                     <div className="relative">
                       <Euro className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
                       <Input
@@ -225,37 +150,11 @@ const CommissionCalculator = () => {
                         type="number"
                         step="0.01"
                         min="0"
-                        value={calculatorData.discount}
+                        value={calculatorData.discount || ''}
                         onChange={(e) => handleInputChange('discount', e.target.value)}
-                        className="pl-10"
+                        className="pl-10 text-lg"
                         placeholder="0.00"
                       />
-                    </div>
-                  </div>
-                </div>
-
-                <Separator />
-
-                <div className="space-y-3">
-                  <h4 className="font-semibold text-slate-800 mb-3">Risultati Calcolati</h4>
-                  
-                  <div className="grid grid-cols-1 gap-3">
-                    <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
-                      <span className="font-medium text-green-800">Commissione Lorda</span>
-                      <span className="font-bold text-green-600">{formatCurrency(calculatedResults.gross_commission)}</span>
-                    </div>
-                    
-                    <div className="flex justify-between items-center p-3 bg-orange-50 rounded-lg">
-                      <span className="font-medium text-orange-800">
-                        Commissione Fornitore
-                        <span className="text-xs ml-1">(4%)</span>
-                      </span>
-                      <span className="font-bold text-orange-600">{formatCurrency(calculatedResults.supplier_commission)}</span>
-                    </div>
-                    
-                    <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
-                      <span className="font-medium text-blue-800">Commissione Agente</span>
-                      <span className="font-bold text-blue-600">{formatCurrency(calculatedResults.agent_commission)}</span>
                     </div>
                   </div>
                 </div>
@@ -266,147 +165,175 @@ const CommissionCalculator = () => {
                   className="w-full"
                 >
                   <RefreshCw size={16} className="mr-2" />
-                  Reset Calcolatore
+                  Reset Tutti i Campi
                 </Button>
               </CardContent>
             </Card>
           </div>
 
-          {/* Analytics and Reports */}
+          {/* Results */}
           <div className="space-y-6">
-            {/* Yearly Summary */}
-            {yearlyData && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Calendar size={20} className="text-purple-600" />
-                    Riepilogo Anno {selectedYear}
-                  </CardTitle>
-                  <CardDescription>
-                    Totali delle pratiche confermate
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="text-center p-4 bg-slate-50 rounded-lg">
-                      <div className="text-2xl font-bold text-slate-800">{yearlyData.total_confirmed_trips}</div>
-                      <div className="text-sm text-slate-600">Pratiche Confermate</div>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp size={20} className="text-green-600" />
+                  Risultati Calcolati
+                </CardTitle>
+                <CardDescription>
+                  Commissioni calcolate automaticamente
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-4">
+                  <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-semibold text-green-800">Commissione Lorda</span>
+                      <span className="text-2xl font-bold text-green-600">{formatCurrency(calculatedResults.gross_commission)}</span>
                     </div>
-                    <div className="text-center p-4 bg-teal-50 rounded-lg">
-                      <div className="text-2xl font-bold text-teal-600">{formatCurrency(yearlyData.total_revenue)}</div>
-                      <div className="text-sm text-slate-600">Fatturato Totale</div>
+                    <div className="text-sm text-green-700">
+                      = Lordo ({formatCurrency(calculatorData.gross_amount)}) - Sconto ({formatCurrency(calculatorData.discount)}) - Netto ({formatCurrency(calculatorData.net_amount)})
                     </div>
                   </div>
                   
-                  <Separator />
+                  <div className="p-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg border border-orange-200">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-semibold text-orange-800">Commissione Fornitore</span>
+                      <span className="text-2xl font-bold text-orange-600">{formatCurrency(calculatedResults.supplier_commission)}</span>
+                    </div>
+                    <div className="text-sm text-orange-700">
+                      = 4% dell'Importo Lordo ({formatCurrency(calculatorData.gross_amount)})
+                    </div>
+                  </div>
                   
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-slate-600">Commissioni Lorde</span>
-                      <span className="font-semibold text-green-600">
-                        {formatCurrency(yearlyData.total_gross_commission)}
-                      </span>
+                  <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-semibold text-blue-800">Commissione Agente</span>
+                      <span className="text-2xl font-bold text-blue-600">{formatCurrency(calculatedResults.agent_commission)}</span>
                     </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-slate-600">Commissioni Fornitore</span>
-                      <span className="font-semibold text-orange-600">
-                        {formatCurrency(yearlyData.total_supplier_commission)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-slate-600">Commissioni Agenti</span>
-                      <span className="font-semibold text-blue-600">
-                        {formatCurrency(yearlyData.total_agent_commission)}
-                      </span>
+                    <div className="text-sm text-blue-700">
+                      = Commissione Lorda ({formatCurrency(calculatedResults.gross_commission)}) - Commissione Fornitore ({formatCurrency(calculatedResults.supplier_commission)})
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            )}
+                </div>
 
-            {/* Performance Metrics */}
-            {analytics && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <BarChart3 size={20} className="text-emerald-600" />
-                    Metriche Performance
-                  </CardTitle>
-                  <CardDescription>
-                    Analytics dettagliate per {analytics.year}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 gap-3">
-                    <div className="flex justify-between items-center p-3 border rounded-lg">
-                      <span className="text-sm font-medium text-slate-700">Fatturato Medio per Pratica</span>
-                      <span className="font-bold text-slate-800">
-                        {formatCurrency(analytics.total_confirmed_trips > 0 ? analytics.total_revenue / analytics.total_confirmed_trips : 0)}
-                      </span>
-                    </div>
-                    
-                    <div className="flex justify-between items-center p-3 border rounded-lg">
-                      <span className="text-sm font-medium text-slate-700">Commissione Media per Pratica</span>
-                      <span className="font-bold text-slate-800">
-                        {formatCurrency(analytics.total_confirmed_trips > 0 ? analytics.total_agent_commission / analytics.total_confirmed_trips : 0)}
-                      </span>
-                    </div>
-                    
-                    <div className="flex justify-between items-center p-3 border rounded-lg">
-                      <span className="text-sm font-medium text-slate-700">% Commissione su Fatturato</span>
-                      <span className="font-bold text-slate-800">
-                        {formatPercentage(analytics.total_gross_commission, analytics.total_revenue)}
-                      </span>
-                    </div>
-                    
-                    <div className="flex justify-between items-center p-3 border rounded-lg">
-                      <span className="text-sm font-medium text-slate-700">% Commissione Agente</span>
-                      <span className="font-bold text-slate-800">
-                        {formatPercentage(analytics.total_agent_commission, analytics.total_gross_commission)}
-                      </span>
+                {/* Summary Stats */}
+                {calculatorData.gross_amount > 0 && (
+                  <div className="pt-4 border-t border-slate-200">
+                    <h4 className="font-semibold text-slate-800 mb-3">Analisi Percentuali</h4>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-slate-600">% Commissione Lorda</span>
+                        <span className="font-semibold">{formatPercentage(calculatedResults.gross_commission, calculatorData.gross_amount)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-600">% Commissione Fornitore</span>
+                        <span className="font-semibold">4.0%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-600">% Commissione Agente</span>
+                        <span className="font-semibold">{formatPercentage(calculatedResults.agent_commission, calculatorData.gross_amount)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-600">% Margine Netto</span>
+                        <span className="font-semibold">{formatPercentage(calculatorData.net_amount, calculatorData.gross_amount)}</span>
+                      </div>
                     </div>
                   </div>
+                )}
+              </CardContent>
+            </Card>
 
-                  {analytics.total_confirmed_trips === 0 && (
-                    <div className="text-center py-8">
-                      <TrendingUp size={48} className="mx-auto text-slate-400 mb-4" />
-                      <p className="text-slate-500">Nessuna pratica confermata per {analytics.year}</p>
-                      <p className="text-sm text-slate-400">Le statistiche appariranno una volta confermate le pratiche</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Commission Formula Info */}
+            {/* Quick Examples */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Percent size={20} className="text-indigo-600" />
-                  Formula Calcolo Commissioni
+                  Esempi Rapidi
                 </CardTitle>
+                <CardDescription>
+                  Clicca per testare con valori di esempio
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
-                <div className="text-sm space-y-2">
-                  <div className="p-3 bg-slate-50 rounded-lg">
-                    <div className="font-medium text-slate-700 mb-1">Commissione Lorda</div>
-                    <div className="text-slate-600">= Importo Lordo - Sconto - Importo Netto</div>
-                  </div>
-                  
-                  <div className="p-3 bg-slate-50 rounded-lg">
-                    <div className="font-medium text-slate-700 mb-1">Commissione Fornitore</div>
-                    <div className="text-slate-600">= 4% dell'Importo Lordo</div>
-                  </div>
-                  
-                  <div className="p-3 bg-slate-50 rounded-lg">
-                    <div className="font-medium text-slate-700 mb-1">Commissione Agente</div>
-                    <div className="text-slate-600">= Commissione Lorda - Commissione Fornitore</div>
-                  </div>
-                </div>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() => setCalculatorData({ gross_amount: 1000, net_amount: 800, discount: 0 })}
+                >
+                  <span className="text-left">
+                    <div className="font-medium">Esempio 1: Viaggio Base</div>
+                    <div className="text-sm text-slate-500">Lordo €1000, Netto €800, Sconto €0</div>
+                  </span>
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() => setCalculatorData({ gross_amount: 2500, net_amount: 2000, discount: 100 })}
+                >
+                  <span className="text-left">
+                    <div className="font-medium">Esempio 2: Con Sconto</div>
+                    <div className="text-sm text-slate-500">Lordo €2500, Netto €2000, Sconto €100</div>
+                  </span>
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() => setCalculatorData({ gross_amount: 5000, net_amount: 3800, discount: 200 })}
+                >
+                  <span className="text-left">
+                    <div className="font-medium">Esempio 3: Viaggio Premium</div>
+                    <div className="text-sm text-slate-500">Lordo €5000, Netto €3800, Sconto €200</div>
+                  </span>
+                </Button>
               </CardContent>
             </Card>
           </div>
         </div>
+
+        {/* Formula Info */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Info size={20} className="text-slate-600" />
+              Come Funziona il Calcolo
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="p-4 bg-slate-50 rounded-lg">
+                <div className="font-semibold text-slate-700 mb-2">1. Commissione Lorda</div>
+                <div className="text-sm text-slate-600">
+                  Si calcola sottraendo dall'importo lordo sia lo sconto che l'importo netto del fornitore
+                </div>
+                <div className="mt-2 font-mono text-xs bg-white p-2 rounded border">
+                  Lordo - Sconto - Netto = Comm. Lorda
+                </div>
+              </div>
+              
+              <div className="p-4 bg-slate-50 rounded-lg">
+                <div className="font-semibold text-slate-700 mb-2">2. Commissione Fornitore</div>
+                <div className="text-sm text-slate-600">
+                  È sempre il 4% dell'importo lordo pagato dal cliente
+                </div>
+                <div className="mt-2 font-mono text-xs bg-white p-2 rounded border">
+                  Lordo × 4% = Comm. Fornitore
+                </div>
+              </div>
+              
+              <div className="p-4 bg-slate-50 rounded-lg">
+                <div className="font-semibold text-slate-700 mb-2">3. Commissione Agente</div>
+                <div className="text-sm text-slate-600">
+                  È la differenza tra commissione lorda e commissione fornitore
+                </div>
+                <div className="mt-2 font-mono text-xs bg-white p-2 rounded border">
+                  Comm. Lorda - Comm. Fornitore = Comm. Agente
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </Dashboard>
   );
