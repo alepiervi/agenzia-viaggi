@@ -24,6 +24,7 @@ import CalendarView from './components/CalendarView';
 import CommissionCalculator from './components/CommissionCalculator';
 import FinancialReports from './components/FinancialReports';
 import ItineraryManager from './components/ItineraryManager';
+import ClientDetail from './components/ClientDetail';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
