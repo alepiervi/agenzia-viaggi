@@ -1213,6 +1213,122 @@ async def get_client_financial_summary(client_id: str, current_user: dict = Depe
         "bookings": parsed_admin_data
     }
 
+# Notifications endpoint for payment deadlines
+@api_router.get("/notifications/payment-deadlines")
+async def get_payment_deadlines(current_user: dict = Depends(get_current_user)):
+    if current_user["role"] not in ["admin", "agent"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # Get upcoming payment deadlines (next 30 days)
+    from datetime import datetime, timedelta, timezone
+    today = datetime.now(timezone.utc)
+    thirty_days = today + timedelta(days=30)
+    
+    # Find payment installments due in next 30 days
+    query = {
+        "payment_date": {
+            "$gte": today.isoformat(),
+            "$lte": thirty_days.isoformat()
+        }
+    }
+    
+    # If agent, filter to their trips only
+    if current_user["role"] == "agent":
+        # Get agent's trip admin IDs
+        agent_trips = await db.trips.find({"agent_id": current_user["id"]}).to_list(1000)
+        trip_ids = [trip["id"] for trip in agent_trips]
+        agent_trip_admins = await db.trip_admin.find({"trip_id": {"$in": trip_ids}}).to_list(1000)
+        admin_ids = [admin["id"] for admin in agent_trip_admins]
+        query["trip_admin_id"] = {"$in": admin_ids}
+    
+    upcoming_payments = await db.payment_installments.find(query).to_list(1000)
+    
+    # Get related trip and client information
+    notifications = []
+    for payment in upcoming_payments:
+        # Get trip admin data
+        trip_admin = await db.trip_admin.find_one({"id": payment["trip_admin_id"]})
+        if not trip_admin:
+            continue
+            
+        # Get trip data
+        trip = await db.trips.find_one({"id": trip_admin["trip_id"]})
+        if not trip:
+            continue
+            
+        # Get client data
+        client = await db.users.find_one({"id": trip["client_id"]})
+        if not client:
+            continue
+        
+        # Calculate days until due
+        payment_date = datetime.fromisoformat(payment["payment_date"].replace('Z', '+00:00'))
+        days_until_due = (payment_date - today).days
+        
+        notifications.append({
+            "id": payment["id"],
+            "type": "payment_deadline",
+            "title": f"Pagamento {payment['payment_type']} in scadenza",
+            "message": f"Cliente {client['first_name']} {client['last_name']} - {trip['title']}",
+            "amount": payment["amount"],
+            "payment_date": payment["payment_date"],
+            "days_until_due": days_until_due,
+            "priority": "high" if days_until_due <= 7 else "medium" if days_until_due <= 14 else "low",
+            "client_name": f"{client['first_name']} {client['last_name']}",
+            "trip_title": trip["title"],
+            "trip_id": trip["id"],
+            "payment_type": payment["payment_type"]
+        })
+    
+    # Also check for balance due dates from trip admin
+    trip_admin_query = {
+        "client_departure_date": {
+            "$gte": today.isoformat(),
+            "$lte": thirty_days.isoformat()
+        },
+        "balance_due": {"$gt": 0}
+    }
+    
+    if current_user["role"] == "agent":
+        trip_admin_query["trip_id"] = {"$in": trip_ids}
+    
+    balance_due_trips = await db.trip_admin.find(trip_admin_query).to_list(1000)
+    
+    for admin in balance_due_trips:
+        trip = await db.trips.find_one({"id": admin["trip_id"]})
+        client = await db.users.find_one({"id": trip["client_id"]}) if trip else None
+        
+        if trip and client:
+            departure_date = datetime.fromisoformat(admin["client_departure_date"].replace('Z', '+00:00'))
+            days_until_departure = (departure_date - today).days
+            
+            notifications.append({
+                "id": f"balance_{admin['id']}",
+                "type": "balance_due",
+                "title": f"Saldo da versare entro partenza",
+                "message": f"Cliente {client['first_name']} {client['last_name']} - {trip['title']}",
+                "amount": admin["balance_due"],
+                "payment_date": admin["client_departure_date"],
+                "days_until_due": days_until_departure,
+                "priority": "high" if days_until_departure <= 7 else "medium" if days_until_departure <= 14 else "low",
+                "client_name": f"{client['first_name']} {client['last_name']}",
+                "trip_title": trip["title"],
+                "trip_id": trip["id"],
+                "payment_type": "balance"
+            })
+    
+    # Sort by priority and days until due
+    priority_order = {"high": 0, "medium": 1, "low": 2}
+    notifications.sort(key=lambda x: (priority_order[x["priority"]], x["days_until_due"]))
+    
+    return {
+        "notifications": notifications,
+        "total_count": len(notifications),
+        "high_priority_count": len([n for n in notifications if n["priority"] == "high"]),
+        "medium_priority_count": len([n for n in notifications if n["priority"] == "medium"]),
+        "low_priority_count": len([n for n in notifications if n["priority"] == "low"])
+    }
+
 # Include router
 app.include_router(api_router)
 
