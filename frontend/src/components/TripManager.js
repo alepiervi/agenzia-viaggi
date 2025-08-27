@@ -229,7 +229,7 @@ const TripManager = () => {
         </div>
         <div className="nav-item active">
           <Plus size={20} />
-          Crea Nuovo Viaggio
+          {isEditMode ? 'Modifica Viaggio' : 'Crea Nuovo Viaggio'}
         </div>
       </nav>
 
