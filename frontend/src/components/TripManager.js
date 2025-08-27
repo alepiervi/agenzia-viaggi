@@ -84,8 +84,8 @@ const TripManager = () => {
   const fetchUsers = async () => {
     try {
       // Use clients endpoint for agents, users for admins
-      const endpoint = currentUser?.role === 'admin' ? '/users' : '/clients';
-      const response = await apiClient.get(endpoint);
+      const endpoint = currentUser?.role === 'admin' ? `${API}/users` : `${API}/clients`;
+      const response = await axios.get(endpoint);
       
       // Filter only clients if using admin endpoint
       const clients = currentUser?.role === 'admin' 
