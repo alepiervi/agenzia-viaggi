@@ -5,6 +5,43 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#000000" />
         <meta name="description" content="A product of emergent.sh" />
+        
+        <!-- Block MetaMask auto-connection -->
+        <script>
+            // Prevent MetaMask auto-connection for travel management app
+            (function() {
+                if (typeof window !== 'undefined') {
+                    // Block ethereum provider detection
+                    Object.defineProperty(window, 'ethereum', {
+                        get: function() {
+                            console.warn('MetaMask access blocked - not needed for travel management');
+                            return undefined;
+                        },
+                        set: function() {
+                            // Ignore attempts to set ethereum
+                        },
+                        configurable: false
+                    });
+                    
+                    // Block web3 provider
+                    Object.defineProperty(window, 'web3', {
+                        get: function() {
+                            return undefined;
+                        },
+                        set: function() {
+                            // Ignore attempts to set web3
+                        },
+                        configurable: false
+                    });
+                    
+                    // Block MetaMask detection
+                    window.isMetaMask = false;
+                    
+                    console.log('Travel Agency App: MetaMask integration disabled');
+                }
+            })();
+        </script>
+        
         <!--
       manifest.json provides metadata used when your web app is installed on a
       user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
