@@ -611,6 +611,33 @@ def main():
     tester.test_get_users_admin_only("admin")
     tester.test_get_users_admin_only("agent")  # Should fail
     tester.test_get_users_admin_only("client")  # Should fail
+
+    print("\n📈 PHASE 6: Analytics Testing (Critical)")
+    print("-" * 40)
+    
+    # Test analytics endpoints - CRITICAL TESTS
+    current_year = datetime.now().year
+    
+    # Test agent commissions analytics
+    for role in test_users.keys():
+        # Test without parameters
+        tester.test_analytics_agent_commissions(role)
+        
+        # Test with year parameter
+        tester.test_analytics_agent_commissions(role, year=current_year)
+        
+        # Test with agent_id parameter (admin only)
+        if role == "admin" and "agent" in tester.users:
+            agent_id = tester.users["agent"]["id"]
+            tester.test_analytics_agent_commissions(role, agent_id=agent_id)
+            
+            # Test with both year and agent_id
+            tester.test_analytics_agent_commissions(role, year=current_year, agent_id=agent_id)
+    
+    # Test yearly summary analytics
+    for role in test_users.keys():
+        tester.test_analytics_yearly_summary(role, current_year)
+        tester.test_analytics_yearly_summary(role, current_year - 1)  # Previous year
     
     print("\n" + "=" * 50)
     print(f"📊 FINAL RESULTS: {tester.tests_passed}/{tester.tests_run} tests passed")
