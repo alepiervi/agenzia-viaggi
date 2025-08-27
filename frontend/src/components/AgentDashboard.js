@@ -256,7 +256,12 @@ const AgentDashboard = () => {
                           <Eye size={16} />
                         </Button>
                       </Link>
-                      <Button size="sm" variant="ghost" className="hover:bg-blue-50 hover:text-blue-700">
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        className="hover:bg-blue-50 hover:text-blue-700"
+                        onClick={() => handleEditTrip(trip.id)}
+                      >
                         <Edit size={16} />
                       </Button>
                       <Button 
