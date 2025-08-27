@@ -288,7 +288,7 @@ const TripManager = () => {
         )}
 
         {/* Trip Form */}
-        {selectedTripType && (
+        {(selectedTripType || isEditMode) && (
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Trip Type Badge */}
             <div className="flex items-center gap-4">
