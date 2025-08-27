@@ -485,6 +485,46 @@ async def get_trip(trip_id: str, current_user: dict = Depends(get_current_user))
     
     return Trip(**parse_from_mongo(trip))
 
+@api_router.get("/trips/{trip_id}/full", response_model=Dict[str, Any])
+async def get_trip_with_details(trip_id: str, current_user: dict = Depends(get_current_user)):
+    """Get trip with agent and client details"""
+    trip = await db.trips.find_one({"id": trip_id})
+    if not trip:
+        raise HTTPException(status_code=404, detail="Trip not found")
+    
+    # Check permissions
+    if (current_user["role"] == "client" and trip["client_id"] != current_user["id"]) or \
+       (current_user["role"] == "agent" and trip["agent_id"] != current_user["id"]):
+        raise HTTPException(status_code=403, detail="Not authorized to view this trip")
+    
+    # Get agent details
+    agent = await db.users.find_one({"id": trip["agent_id"]})
+    agent_info = None
+    if agent:
+        agent_info = {
+            "id": agent["id"],
+            "first_name": agent["first_name"],
+            "last_name": agent["last_name"],
+            "email": agent["email"]
+        }
+    
+    # Get client details  
+    client = await db.users.find_one({"id": trip["client_id"]})
+    client_info = None
+    if client:
+        client_info = {
+            "id": client["id"],
+            "first_name": client["first_name"],
+            "last_name": client["last_name"],
+            "email": client["email"]
+        }
+    
+    return {
+        "trip": Trip(**parse_from_mongo(trip)),
+        "agent": agent_info,
+        "client": client_info
+    }
+
 @api_router.put("/trips/{trip_id}", response_model=Trip)
 async def update_trip(trip_id: str, trip_data: TripCreate, current_user: dict = Depends(get_current_user)):
     if current_user["role"] not in ["admin", "agent"]:
