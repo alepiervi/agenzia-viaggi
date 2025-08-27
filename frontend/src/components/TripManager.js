@@ -91,9 +91,12 @@ const TripManager = () => {
 
   const fetchTripData = async () => {
     try {
-      const response = await axios.get(`${API}/trips/${editTripId}`);
-      const trip = response.data;
+      // Get trip with full details (agent/client info)
+      const response = await axios.get(`${API}/trips/${editTripId}/full`);
+      const { trip, agent, client } = response.data;
+      
       setExistingTrip(trip);
+      setTripDetails({ agent, client });
       setSelectedTripType(trip.trip_type);
       
       // Populate form with existing data
