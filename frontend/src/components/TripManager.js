@@ -244,8 +244,12 @@ const TripManager = () => {
             <ArrowLeft size={20} />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-slate-800">Crea Nuovo Viaggio</h1>
-            <p className="text-slate-600 mt-1">Seleziona il tipo di viaggio e configura i dettagli</p>
+            <h1 className="text-3xl font-bold text-slate-800">
+              {isEditMode ? 'Modifica Viaggio' : 'Crea Nuovo Viaggio'}
+            </h1>
+            <p className="text-slate-600 mt-1">
+              {isEditMode ? 'Aggiorna i dettagli del viaggio esistente' : 'Seleziona il tipo di viaggio e configura i dettagli'}
+            </p>
           </div>
         </div>
 
