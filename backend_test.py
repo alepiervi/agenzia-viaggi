@@ -303,6 +303,166 @@ class TravelAgencyAPITester:
         )
         return success
 
+    def test_trip_update_partial(self, role: str, trip_id: str):
+        """Test partial trip update functionality"""
+        if role not in self.tokens:
+            print(f"❌ No token for {role}")
+            return False
+            
+        # Test partial update with only title
+        partial_update_data = {
+            "title": "Updated Mediterranean Cruise Adventure"
+        }
+        
+        success, response = self.run_test(
+            f"Partial trip update - title only ({role})",
+            "PUT",
+            f"trips/{trip_id}",
+            200,
+            data=partial_update_data,
+            token=self.tokens[role]
+        )
+        
+        if success:
+            print(f"   ✅ Trip title updated successfully")
+            
+        # Test partial update with multiple fields
+        multi_field_update = {
+            "title": "Luxury Mediterranean Experience",
+            "description": "Updated description for the luxury cruise experience",
+            "status": "active"
+        }
+        
+        success2, response2 = self.run_test(
+            f"Partial trip update - multiple fields ({role})",
+            "PUT",
+            f"trips/{trip_id}",
+            200,
+            data=multi_field_update,
+            token=self.tokens[role]
+        )
+        
+        if success2:
+            print(f"   ✅ Trip multiple fields updated successfully")
+            
+        # Test update with invalid trip_id
+        success3, response3 = self.run_test(
+            f"Trip update with invalid ID ({role})",
+            "PUT",
+            f"trips/invalid-trip-id",
+            404,
+            data=partial_update_data,
+            token=self.tokens[role]
+        )
+        
+        return success and success2 and success3
+
+    def test_analytics_agent_commissions(self, role: str, year: int = None, agent_id: str = None):
+        """Test agent commissions analytics endpoint"""
+        if role not in self.tokens:
+            print(f"❌ No token for {role}")
+            return False
+            
+        # Build endpoint with query parameters
+        endpoint = "analytics/agent-commissions"
+        params = []
+        if year:
+            params.append(f"year={year}")
+        if agent_id:
+            params.append(f"agent_id={agent_id}")
+        
+        if params:
+            endpoint += "?" + "&".join(params)
+            
+        expected_status = 200 if role in ["admin", "agent"] else 403
+        
+        success, response = self.run_test(
+            f"Get agent commissions analytics ({role})",
+            "GET",
+            endpoint,
+            expected_status,
+            token=self.tokens[role]
+        )
+        
+        if success and role in ["admin", "agent"]:
+            print(f"   ✅ Analytics data retrieved: {len(response.get('trips', []))} trips")
+            print(f"   📊 Total revenue: {response.get('total_revenue', 0)}")
+            print(f"   💰 Total agent commission: {response.get('total_agent_commission', 0)}")
+            
+        return success
+
+    def test_analytics_yearly_summary(self, role: str, year: int):
+        """Test yearly summary analytics endpoint"""
+        if role not in self.tokens:
+            print(f"❌ No token for {role}")
+            return False
+            
+        expected_status = 200 if role in ["admin", "agent"] else 403
+        
+        success, response = self.run_test(
+            f"Get yearly summary analytics for {year} ({role})",
+            "GET",
+            f"analytics/yearly-summary/{year}",
+            expected_status,
+            token=self.tokens[role]
+        )
+        
+        if success and role in ["admin", "agent"]:
+            print(f"   ✅ Yearly summary for {year}: {response.get('total_confirmed_trips', 0)} trips")
+            print(f"   📊 Total revenue: {response.get('total_revenue', 0)}")
+            print(f"   💰 Total commissions: {response.get('total_gross_commission', 0)}")
+            
+        return success
+
+    def test_create_trip_admin_data(self, role: str, trip_id: str):
+        """Test creating trip administrative data for analytics"""
+        if role not in self.tokens:
+            print(f"❌ No token for {role}")
+            return False
+            
+        # Create trip admin data to have something for analytics
+        admin_data = {
+            "trip_id": trip_id,
+            "practice_number": "PRAC2024001",
+            "booking_number": "BOOK2024001",
+            "gross_amount": 5000.0,
+            "net_amount": 4200.0,
+            "discount": 200.0,
+            "practice_confirm_date": datetime.now().isoformat(),
+            "client_departure_date": (datetime.now() + timedelta(days=30)).isoformat(),
+            "confirmation_deposit": 1000.0
+        }
+        
+        expected_status = 200 if role in ["admin", "agent"] else 403
+        
+        success, response = self.run_test(
+            f"Create trip admin data ({role})",
+            "POST",
+            f"trips/{trip_id}/admin",
+            expected_status,
+            data=admin_data,
+            token=self.tokens[role]
+        )
+        
+        if success and role in ["admin", "agent"]:
+            print(f"   ✅ Trip admin data created for analytics testing")
+            
+            # Update status to confirmed for analytics
+            admin_id = response.get('id')
+            if admin_id:
+                update_success, _ = self.run_test(
+                    f"Update trip admin status to confirmed ({role})",
+                    "PUT",
+                    f"trip-admin/{admin_id}",
+                    200,
+                    data={"status": "confirmed"},
+                    token=self.tokens[role]
+                )
+                if update_success:
+                    print(f"   ✅ Trip admin status updated to confirmed")
+            
+        return success
+
 def main():
     print("🚀 Starting Travel Agency API Tests")
     print("=" * 50)
