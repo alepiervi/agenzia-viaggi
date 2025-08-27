@@ -27,20 +27,13 @@ import ItineraryManager from './components/ItineraryManager';
 import ClientDetail from './components/ClientDetail';
 import NotificationCenter from './components/NotificationCenter';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+// Force localhost backend for development
+const BACKEND_URL = 'http://localhost:8001';
 const API = `${BACKEND_URL}/api`;
 
-// Simple URL replacement for preview environment
-const FALLBACK_BACKEND_URL = 'http://localhost:8001';
-const FALLBACK_API = `${FALLBACK_BACKEND_URL}/api`;
-
-// Use fallback API if preview environment detected
-const FINAL_API = BACKEND_URL && BACKEND_URL.includes('preview.emergentagent.com') ? FALLBACK_API : API;
-
-console.log('Backend configuration:', {
+console.log('Backend configuration forced to localhost:', {
   BACKEND_URL,
-  API: FINAL_API,
-  usingFallback: BACKEND_URL && BACKEND_URL.includes('preview.emergentagent.com')
+  API
 });
 
 // Auth Provider
