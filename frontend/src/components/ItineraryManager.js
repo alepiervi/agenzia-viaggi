@@ -307,10 +307,8 @@ const ItineraryManager = () => {
                       <div>
                         <Label htmlFor={`type-${day.day_number}`}>Tipo Giornata</Label>
                         <Select 
-                          value={day.itinerary_type} 
-                          onValueChange={(value) => {
-                            day.itinerary_type = value;
-                          }}
+                          value={editingData.itinerary_type || ''} 
+                          onValueChange={(value) => updateEditingData('itinerary_type', value)}
                         >
                           <SelectTrigger>
                             <SelectValue />
