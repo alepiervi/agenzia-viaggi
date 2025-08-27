@@ -30,6 +30,42 @@ import NotificationCenter from './components/NotificationCenter';
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
+// Setup axios interceptor to handle URL fallback
+const setupAxiosInterceptor = () => {
+  // Request interceptor to modify URLs if needed
+  axios.interceptors.request.use((config) => {
+    // If the backend URL contains preview domain, replace with localhost
+    if (config.url && config.url.includes('travelagent.preview.emergentagent.com')) {
+      config.url = config.url.replace('https://travelagent.preview.emergentagent.com', 'http://localhost:8001');
+    }
+    return config;
+  });
+
+  // Response interceptor to handle network errors and retry with localhost
+  axios.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+      const originalRequest = error.config;
+      
+      // If network error and not already retried with localhost
+      if (error.code === 'ERR_NETWORK' && !originalRequest._retry) {
+        originalRequest._retry = true;
+        
+        // Replace preview URL with localhost and retry
+        if (originalRequest.url.includes('travelagent.preview.emergentagent.com')) {
+          originalRequest.url = originalRequest.url.replace('https://travelagent.preview.emergentagent.com', 'http://localhost:8001');
+          return axios(originalRequest);
+        }
+      }
+      
+      return Promise.reject(error);
+    }
+  );
+};
+
+// Initialize axios interceptor
+setupAxiosInterceptor();
+
 // Auth Provider
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
