@@ -436,6 +436,10 @@ async def login(login_data: UserLogin):
     if not user or not bcrypt.verify(login_data.password, user["hashed_password"]):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
+    # Check if user is blocked
+    if user.get("blocked", False):
+        raise HTTPException(status_code=403, detail="Account blocked. Contact administrator.")
+    
     token = create_token(user)
     user_response = User(**parse_from_mongo(user))
     
