@@ -348,6 +348,15 @@ function App() {
               } 
             />
 
+            <Route 
+              path="/notifications" 
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'agent']}>
+                  <NotificationCenter />
+                </ProtectedRoute>
+              } 
+            />
+
             {/* Default Route */}
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
           </Routes>
