@@ -63,7 +63,10 @@ const TripManager = () => {
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+    if (isEditMode) {
+      fetchTripData();
+    }
+  }, [isEditMode, editTripId]);
 
   const fetchUsers = async () => {
     try {
@@ -73,6 +76,48 @@ const TripManager = () => {
     } catch (error) {
       console.error('Error fetching users:', error);
       toast.error('Errore nel caricamento degli utenti');
+    }
+  };
+
+  const fetchTripData = async () => {
+    try {
+      const response = await axios.get(`${API}/trips/${editTripId}`);
+      const trip = response.data;
+      setExistingTrip(trip);
+      setSelectedTripType(trip.trip_type);
+      
+      // Populate form with existing data
+      setFormData({
+        title: trip.title,
+        destination: trip.destination,
+        description: trip.description,
+        start_date: new Date(trip.start_date),
+        end_date: new Date(trip.end_date),
+        client_id: trip.client_id,
+        trip_type: trip.trip_type
+      });
+
+      // If it's a cruise, fetch cruise info
+      if (trip.trip_type === 'cruise') {
+        try {
+          const cruiseRes = await axios.get(`${API}/trips/${editTripId}/cruise-info`);
+          if (cruiseRes.data) {
+            setCruiseData({
+              ship_name: cruiseRes.data.ship_name,
+              cabin_number: cruiseRes.data.cabin_number,
+              departure_time: cruiseRes.data.departure_time ? new Date(cruiseRes.data.departure_time) : null,
+              return_time: cruiseRes.data.return_time ? new Date(cruiseRes.data.return_time) : null,
+              ship_facilities: cruiseRes.data.ship_facilities || []
+            });
+          }
+        } catch (error) {
+          console.log('No cruise info found for this trip');
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching trip data:', error);
+      toast.error('Errore nel caricamento del viaggio');
+      navigate('/dashboard');
     }
   };
 
