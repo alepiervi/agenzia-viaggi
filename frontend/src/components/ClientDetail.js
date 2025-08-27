@@ -268,6 +268,93 @@ const ClientDetail = () => {
           </Card>
         )}
 
+        {/* Confirmed Bookings Details */}
+        {financialSummary?.confirmed_booking_details && financialSummary.confirmed_booking_details.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CreditCard size={20} className="text-green-600" />
+                Pratiche Confermate ({financialSummary.confirmed_bookings})
+              </CardTitle>
+              <CardDescription>
+                Dettaglio delle prenotazioni confermate e fatturato generato
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {/* Summary Cards for Confirmed Bookings */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border-l-4 border-l-green-500">
+                  <div className="text-center">
+                    <h4 className="text-sm font-medium text-green-800">Fatturato Lordo Confermato</h4>
+                    <p className="text-2xl font-bold text-green-600">{formatCurrency(financialSummary.confirmed_revenue)}</p>
+                  </div>
+                </div>
+                
+                <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border-l-4 border-l-blue-500">
+                  <div className="text-center">
+                    <h4 className="text-sm font-medium text-blue-800">Commissioni Fornitore</h4>
+                    <p className="text-2xl font-bold text-blue-600">{formatCurrency(financialSummary.confirmed_supplier_commission)}</p>
+                  </div>
+                </div>
+                
+                <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border-l-4 border-l-purple-500">
+                  <div className="text-center">
+                    <h4 className="text-sm font-medium text-purple-800">Commissioni Agente</h4>
+                    <p className="text-2xl font-bold text-purple-600">{formatCurrency(financialSummary.confirmed_agent_commission)}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Detailed Booking List */}
+              <div className="space-y-4">
+                <h4 className="font-semibold text-slate-800 border-b pb-2">Dettaglio Pratiche</h4>
+                {financialSummary.confirmed_booking_details.map((booking, index) => (
+                  <div key={index} className="p-4 border rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors">
+                    <div className="flex items-center justify-between mb-3">
+                      <div>
+                        <h5 className="font-semibold text-slate-800">{booking.trip_title}</h5>
+                        <p className="text-sm text-slate-600">📍 {booking.trip_destination}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm text-slate-500">Pratica: {booking.practice_number}</p>
+                        <p className="text-sm text-slate-500">Prenotazione: {booking.booking_number}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-slate-600">Fatturato Lordo:</span>
+                        <span className="font-semibold text-green-600">{formatCurrency(booking.gross_amount)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-600">Fatturato Netto:</span>
+                        <span className="font-semibold">{formatCurrency(booking.net_amount)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-600">Comm. Fornitore:</span>
+                        <span className="font-semibold text-blue-600">{formatCurrency(booking.supplier_commission)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-600">Comm. Agente:</span>
+                        <span className="font-semibold text-purple-600">{formatCurrency(booking.agent_commission)}</span>
+                      </div>
+                    </div>
+                    
+                    {booking.confirmation_date && (
+                      <div className="mt-2 pt-2 border-t text-xs text-slate-500">
+                        Confermato: {format(new Date(booking.confirmation_date), "PPP", { locale: it })}
+                        {booking.departure_date && (
+                          <span className="ml-4">Partenza: {format(new Date(booking.departure_date), "PPP", { locale: it })}</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Client Trips */}
         <Card>
           <CardHeader>
