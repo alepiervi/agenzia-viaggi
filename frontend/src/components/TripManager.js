@@ -63,6 +63,7 @@ const TripManager = () => {
     return_time: null,
     ship_facilities: []
   });
+  const [cruiseInfoId, setCruiseInfoId] = useState(null);
 
   useEffect(() => {
     fetchUsers();
