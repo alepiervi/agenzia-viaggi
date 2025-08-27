@@ -42,6 +42,7 @@ const API = `${BACKEND_URL}/api`;
 const TripView = () => {
   const { tripId } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [trip, setTrip] = useState(null);
   const [cruiseInfo, setCruiseInfo] = useState(null);
   const [itineraries, setItineraries] = useState([]);
