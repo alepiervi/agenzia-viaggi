@@ -277,7 +277,7 @@ const ItineraryManager = () => {
                       <div className="flex gap-2">
                         <Button
                           size="sm"
-                          onClick={() => handleSaveItinerary(day)}
+                          onClick={handleSaveItinerary}
                           className="bg-green-600 hover:bg-green-700"
                         >
                           <Save size={14} className="mr-2" />
@@ -286,7 +286,7 @@ const ItineraryManager = () => {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => setEditingDay(null)}
+                          onClick={cancelEditing}
                         >
                           Annulla
                         </Button>
