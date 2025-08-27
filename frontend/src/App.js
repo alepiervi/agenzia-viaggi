@@ -26,6 +26,7 @@ import FinancialReports from './components/FinancialReports';
 import ItineraryManager from './components/ItineraryManager';
 import ClientDetail from './components/ClientDetail';
 import NotificationCenter from './components/NotificationCenter';
+import DebugInfo from './components/DebugInfo';
 
 // Force localhost backend for development
 const BACKEND_URL = 'http://localhost:8001';
