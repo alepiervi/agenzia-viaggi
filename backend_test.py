@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from typing import Dict, Any, Optional
 
 class TravelAgencyAPITester:
-    def __init__(self, base_url="https://tripmanager-5.preview.emergentagent.com"):
+    def __init__(self, base_url="https://travelagent.preview.emergentagent.com"):
         self.base_url = base_url
         self.api_url = f"{base_url}/api"
         self.tokens = {}  # Store tokens for different users
