@@ -465,6 +465,20 @@ async def get_cruise_info(trip_id: str, current_user: dict = Depends(get_current
         return CruiseInfo(**parse_from_mongo(cruise_info))
     return None
 
+@api_router.put("/cruise-info/{cruise_info_id}", response_model=CruiseInfo)
+async def update_cruise_info(cruise_info_id: str, cruise_data: CruiseInfoCreate, current_user: dict = Depends(get_current_user)):
+    if current_user["role"] not in ["admin", "agent"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    update_data = prepare_for_mongo(cruise_data.dict())
+    await db.cruise_info.update_one({"id": cruise_info_id}, {"$set": update_data})
+    
+    updated_cruise = await db.cruise_info.find_one({"id": cruise_info_id})
+    if not updated_cruise:
+        raise HTTPException(status_code=404, detail="Cruise info not found")
+    
+    return CruiseInfo(**parse_from_mongo(updated_cruise))
+
 @api_router.get("/trips/{trip_id}/port-schedules", response_model=List[PortSchedule])
 async def get_port_schedules(trip_id: str, current_user: dict = Depends(get_current_user)):
     schedules = await db.port_schedules.find({"trip_id": trip_id}).to_list(1000)
