@@ -541,7 +541,7 @@ const TripManager = () => {
                 ) : (
                   <>
                     <Save size={16} className="mr-2" />
-                    Crea Viaggio
+                    {isEditMode ? 'Aggiorna Viaggio' : 'Crea Viaggio'}
                   </>
                 )}
               </Button>
