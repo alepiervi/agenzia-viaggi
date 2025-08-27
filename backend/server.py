@@ -358,6 +358,33 @@ def prepare_for_mongo(data):
                 data[key] = [prepare_for_mongo(item) if isinstance(item, dict) else item for item in value]
     return data
 
+def calculate_trip_admin_fields(trip_admin_data: dict, installments: List[dict] = None) -> dict:
+    """Calculate derived fields for trip administration"""
+    gross_amount = trip_admin_data.get('gross_amount', 0)
+    net_amount = trip_admin_data.get('net_amount', 0)
+    discount = trip_admin_data.get('discount', 0)
+    confirmation_deposit = trip_admin_data.get('confirmation_deposit', 0)
+    
+    # Calculate commissions
+    gross_commission = gross_amount - discount - net_amount
+    supplier_commission = gross_amount * 0.04  # 4% of gross
+    agent_commission = gross_commission - supplier_commission
+    
+    # Calculate balance due
+    total_paid = confirmation_deposit
+    if installments:
+        total_paid += sum(inst.get('amount', 0) for inst in installments)
+    
+    balance_due = gross_amount - total_paid
+    
+    return {
+        **trip_admin_data,
+        'gross_commission': gross_commission,
+        'supplier_commission': supplier_commission,
+        'agent_commission': agent_commission,
+        'balance_due': balance_due
+    }
+
 def parse_from_mongo(item):
     """Parse datetime strings from MongoDB back to datetime objects"""
     if isinstance(item, dict):
