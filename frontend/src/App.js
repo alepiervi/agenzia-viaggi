@@ -197,6 +197,51 @@ function App() {
             />
 
             <Route 
+              path="/clients" 
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'agent']}>
+                  <UserManagement />
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route 
+              path="/users" 
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <UserManagement />
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route 
+              path="/calendar" 
+              element={
+                <ProtectedRoute>
+                  <CalendarView />
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route 
+              path="/commission-calculator" 
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'agent']}>
+                  <CommissionCalculator />
+                </ProtectedRoute>
+              } 
+            />
+            
+            <Route 
+              path="/financial-reports" 
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'agent']}>
+                  <CommissionCalculator />
+                </ProtectedRoute>
+              } 
+            />
+
+            <Route 
               path="/trip-admin/:tripId" 
               element={
                 <ProtectedRoute allowedRoles={['admin', 'agent']}>
