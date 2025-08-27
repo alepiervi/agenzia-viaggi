@@ -161,16 +161,19 @@ frontend:
           comment: "User requested UI improvement to bring data higher in selected sections"
 
   - task: "Enhance client profile with bookings, revenue, commissions info"
-    implemented: false
+    implemented: true
     working: "NA"
     file: "ClientDashboard.js"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
         - working: "NA"
           agent: "user"
           comment: "Client profile should show bookings, total revenue, commissions, supplier commissions, discounts"
+        - working: "NA"
+          agent: "main"
+          comment: "Added new backend endpoint /clients/{client_id}/financial-summary and enhanced ClientDashboard with financial summary section showing bookings, revenue, commissions breakdown"
 
 metadata:
   created_by: "main_agent"
