@@ -133,25 +133,6 @@ const AgentDashboard = () => {
 
   return (
     <Dashboard>
-      <nav className="space-y-2">
-        <div className="nav-item active">
-          <MapPin size={20} />
-          I Miei Viaggi
-        </div>
-        <Link to="/manage-trips" className="nav-item">
-          <Plus size={20} />
-          Crea Viaggio
-        </Link>
-        <div className="nav-item">
-          <Users size={20} />
-          I Miei Clienti
-        </div>
-        <div className="nav-item">
-          <Calendar size={20} />
-          Calendario
-        </div>
-      </nav>
-
       <div className="space-y-8 animate-fade-in">
         {/* Header */}
         <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
@@ -264,6 +245,11 @@ const AgentDashboard = () => {
                       >
                         <Edit size={16} />
                       </Button>
+                      <Link to={`/trip-admin/${trip.id}`}>
+                        <Button size="sm" variant="ghost" className="hover:bg-purple-50 hover:text-purple-700">
+                          💰
+                        </Button>
+                      </Link>
                       <Button 
                         size="sm" 
                         variant="ghost" 
