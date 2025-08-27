@@ -40,6 +40,7 @@ const NavigationItems = () => {
           { path: '/dashboard', icon: MapPin, label: 'I Miei Viaggi', active: true },
           { path: '/manage-trips', icon: Plus, label: 'Crea Viaggio' },
           { path: '/clients', icon: Users, label: 'I Miei Clienti' },
+          { path: '/notifications', icon: Bell, label: 'Notifiche' },
           { path: '/calendar', icon: Calendar, label: 'Calendario' },
           { path: '/financial-reports', icon: DollarSign, label: 'Report Finanziari' },
           { path: '/commission-calculator', icon: Calculator, label: 'Calcolatore Commissioni' }
