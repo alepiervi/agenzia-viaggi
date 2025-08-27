@@ -1262,7 +1262,11 @@ async def get_payment_deadlines(current_user: dict = Depends(get_current_user)):
             continue
         
         # Calculate days until due
-        payment_date = datetime.fromisoformat(payment["payment_date"].replace('Z', '+00:00'))
+        payment_date_str = payment["payment_date"]
+        if isinstance(payment_date_str, str):
+            payment_date = datetime.fromisoformat(payment_date_str.replace('Z', '+00:00'))
+        else:
+            payment_date = payment_date_str.replace(tzinfo=timezone.utc) if payment_date_str.tzinfo is None else payment_date_str
         days_until_due = (payment_date - today).days
         
         notifications.append({
