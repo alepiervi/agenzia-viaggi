@@ -8,37 +8,75 @@
         
         <!-- Block MetaMask auto-connection -->
         <script>
-            // Prevent MetaMask auto-connection for travel management app
+            // AGGRESSIVE MetaMask blocking for travel management app
             (function() {
-                if (typeof window !== 'undefined') {
-                    // Block ethereum provider detection
-                    Object.defineProperty(window, 'ethereum', {
-                        get: function() {
-                            console.warn('MetaMask access blocked - not needed for travel management');
-                            return undefined;
-                        },
-                        set: function() {
-                            // Ignore attempts to set ethereum
-                        },
-                        configurable: false
-                    });
-                    
-                    // Block web3 provider
-                    Object.defineProperty(window, 'web3', {
-                        get: function() {
-                            return undefined;
-                        },
-                        set: function() {
-                            // Ignore attempts to set web3
-                        },
-                        configurable: false
-                    });
-                    
-                    // Block MetaMask detection
-                    window.isMetaMask = false;
-                    
-                    console.log('Travel Agency App: MetaMask integration disabled');
+                console.log('🛡️ Travel Agency: Blocking all crypto wallet connections');
+                
+                // Block all ethereum-related globals
+                const blockEthereum = () => {
+                    try {
+                        delete window.ethereum;
+                        delete window.web3;
+                        
+                        // Override with non-configurable properties
+                        Object.defineProperty(window, 'ethereum', {
+                            get: () => undefined,
+                            set: () => {},
+                            configurable: false,
+                            enumerable: false
+                        });
+                        
+                        Object.defineProperty(window, 'web3', {
+                            get: () => undefined,
+                            set: () => {},
+                            configurable: false,
+                            enumerable: false
+                        });
+                        
+                        // Block MetaMask detection
+                        window.isMetaMask = false;
+                        Object.defineProperty(window, 'isMetaMask', {
+                            get: () => false,
+                            set: () => {},
+                            configurable: false
+                        });
+                        
+                    } catch (e) {
+                        console.warn('Travel Agency: Error in MetaMask blocking:', e);
+                    }
+                };
+                
+                // Execute immediately
+                blockEthereum();
+                
+                // Block on DOM ready
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', blockEthereum);
+                } else {
+                    blockEthereum();
                 }
+                
+                // Block on window load
+                window.addEventListener('load', blockEthereum);
+                
+                // Continuously override any attempts to set ethereum
+                const observer = new MutationObserver(blockEthereum);
+                observer.observe(document.documentElement, {
+                    childList: true,
+                    subtree: true
+                });
+                
+                // Override console errors for MetaMask
+                const originalError = console.error;
+                console.error = function(...args) {
+                    const message = args.join(' ');
+                    if (message.includes('MetaMask') || message.includes('ethereum')) {
+                        console.warn('🛡️ Crypto wallet error suppressed:', message);
+                        return;
+                    }
+                    originalError.apply(console, args);
+                };
+                
             })();
         </script>
         
