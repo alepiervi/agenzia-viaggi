@@ -66,22 +66,32 @@ const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      console.log('Attempting login with API:', `${API}/auth/login`);
-      const response = await axios.post(`${API}/auth/login`, { email, password });
+      // Use override API if available (for preview environment)
+      const apiUrl = window.API_OVERRIDE || API;
+      console.log('Login attempt with URL:', `${apiUrl}/auth/login`);
+      
+      const response = await axios.post(`${apiUrl}/auth/login`, { email, password });
       const { user, token } = response.data;
       
-      console.log('Login successful:', user);
+      console.log('✅ Login successful:', user);
       setUser(user);
       setToken(token);
       localStorage.setItem('token', token);
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       
-      toast.success('Login successful!');
+      toast.success(`Welcome ${user.first_name}!`);
       return true;
     } catch (error) {
-      console.error('Login error:', error);
-      console.error('Error response:', error.response?.data);
-      const message = error.response?.data?.detail || 'Login failed';
+      console.error('❌ Login error:', error);
+      console.error('Error details:', error.response?.data);
+      
+      let message = 'Login failed - please check your credentials';
+      if (error.response?.data?.detail) {
+        message = error.response.data.detail;
+      } else if (error.code === 'ERR_NETWORK') {
+        message = 'Network error - please check your connection';
+      }
+      
       toast.error(message);
       return false;
     }
