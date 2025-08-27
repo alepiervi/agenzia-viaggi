@@ -378,9 +378,6 @@ function App() {
               } 
             />
 
-            {/* Debug route - temporary */}
-            <Route path="/debug" element={<DebugInfo />} />
-
             {/* Default Route */}
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
           </Routes>
