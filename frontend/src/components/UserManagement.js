@@ -255,15 +255,27 @@ const UserManagement = () => {
                       </span>
                     </div>
                     <div>
-                      <h3 className="font-semibold text-slate-800">
-                        {user.first_name} {user.last_name}
-                      </h3>
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-semibold text-slate-800">
+                          {user.first_name} {user.last_name}
+                        </h3>
+                        {user.blocked && (
+                          <Lock size={16} className="text-red-500" title="Account bloccato" />
+                        )}
+                      </div>
                       <p className="text-sm text-slate-600">{user.email}</p>
                     </div>
                   </div>
-                  <Badge className={`text-xs ${getRoleBadgeClass(user.role)}`}>
-                    {getRoleDisplayName(user.role)}
-                  </Badge>
+                  <div className="flex flex-col items-end gap-2">
+                    <Badge className={`text-xs ${getRoleBadgeClass(user.role)}`}>
+                      {getRoleDisplayName(user.role)}
+                    </Badge>
+                    {user.blocked && (
+                      <Badge className="text-xs bg-red-100 text-red-700">
+                        Bloccato
+                      </Badge>
+                    )}
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="pt-0">
