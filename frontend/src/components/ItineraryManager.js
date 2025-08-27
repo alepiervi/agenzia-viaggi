@@ -167,14 +167,20 @@ const ItineraryManager = () => {
         itinerary_type: editingData.itinerary_type
       };
 
+      console.log('Sending itinerary data:', itineraryData);
+      console.log('Trip ID:', tripId);
+      console.log('Editing data:', editingData);
+
       const existingItinerary = itineraries.find(it => it.day_number === editingData.day_number);
 
       if (existingItinerary) {
         // Update existing itinerary
+        console.log('Updating existing itinerary:', existingItinerary.id);
         await axios.put(`${API}/itineraries/${existingItinerary.id}`, itineraryData);
         toast.success('Itinerario aggiornato con successo');
       } else {
         // Create new itinerary
+        console.log('Creating new itinerary');
         await axios.post(`${API}/itineraries`, itineraryData);
         toast.success('Itinerario creato con successo');
       }
@@ -183,6 +189,8 @@ const ItineraryManager = () => {
       cancelEditing();
     } catch (error) {
       console.error('Error saving itinerary:', error);
+      console.error('Error response:', error.response?.data);
+      console.error('Error status:', error.response?.status);
       toast.error('Errore nel salvataggio dell\'itinerario');
     }
   };
