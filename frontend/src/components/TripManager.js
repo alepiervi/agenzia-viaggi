@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { apiClient, getApiBase } from '../utils/api';
+import axios from 'axios';
 import { toast } from 'sonner';
 import { useAuth } from '../App';
 import Dashboard from './Dashboard';
@@ -27,6 +27,19 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
+
+// Smart backend URL detection
+const getBackendUrl = () => {
+  const envUrl = process.env.REACT_APP_BACKEND_URL;
+  // If environment URL contains preview domain, use localhost instead
+  if (envUrl && envUrl.includes('preview.emergentagent.com')) {
+    return 'http://localhost:8001';
+  }
+  return envUrl || 'http://localhost:8001';
+};
+
+const BACKEND_URL = getBackendUrl();
+const API = `${BACKEND_URL}/api`;
 
 const TripManager = () => {
   const navigate = useNavigate();
