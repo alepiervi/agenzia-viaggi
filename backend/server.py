@@ -1106,6 +1106,9 @@ async def get_agent_commission_analytics(
     
     confirmed_trips = await db.trip_admin.find(query).to_list(1000)
     
+    # Parse MongoDB data to remove ObjectIds
+    parsed_trips = [parse_from_mongo(trip) for trip in confirmed_trips]
+    
     # Calculate totals
     total_revenue = sum(trip.get("gross_amount", 0) for trip in confirmed_trips)
     total_gross_commission = sum(trip.get("gross_commission", 0) for trip in confirmed_trips)
@@ -1120,7 +1123,7 @@ async def get_agent_commission_analytics(
         "total_gross_commission": total_gross_commission,
         "total_supplier_commission": total_supplier_commission,
         "total_agent_commission": total_agent_commission,
-        "trips": confirmed_trips
+        "trips": parsed_trips
     }
 
 @api_router.get("/analytics/yearly-summary/{year}")
