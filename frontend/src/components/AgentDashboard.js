@@ -25,6 +25,7 @@ const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 const AgentDashboard = () => {
+  const navigate = useNavigate();
   const [stats, setStats] = useState({});
   const [trips, setTrips] = useState([]);
   const [loading, setLoading] = useState(true);
