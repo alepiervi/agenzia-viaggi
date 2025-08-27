@@ -239,9 +239,9 @@ frontend:
           comment: "✅ IMPLEMENTED: Created ClientDetail.js component with comprehensive client analytics. Features: client info, financial summary (bookings, revenue, commissions breakdown), complete trip history, clickable client cards in UserManagement. Added route /clients/:clientId and handleViewClient function."
 
   - task: "Implement internal notifications system for payment deadlines"
-    implemented: false
-    working: false
-    file: "NotificationSystem.js"
+    implemented: true
+    working: "NA"
+    file: "NotificationCenter.js"
     stuck_count: 0
     priority: "medium"
     needs_retesting: true
@@ -249,6 +249,9 @@ frontend:
         - working: false
           agent: "user"
           comment: "Need internal notifications for deadlines like balance payments, deposits, and other payment schedules."
+        - working: "NA"
+          agent: "main"
+          comment: "✅ IMPLEMENTED: Created complete notification system with backend endpoint /notifications/payment-deadlines and NotificationCenter.js frontend. Features: payment deadline tracking (30 days), balance due alerts, priority-based notifications, client info integration, direct navigation to trip management. Added to navigation for admin/agent roles."
 
   - task: "Test login functionality with different user roles"
     implemented: true
