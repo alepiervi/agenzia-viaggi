@@ -198,10 +198,18 @@ const TripManager = () => {
         // Update existing trip - send only changed fields
         const updateData = {};
         
+        // Helper function to safely compare values, handling null/undefined/empty strings
+        const hasChanged = (newVal, oldVal) => {
+          // Normalize empty/null values
+          const normalizedNew = newVal || '';
+          const normalizedOld = oldVal || '';
+          return normalizedNew !== normalizedOld;
+        };
+        
         // Only include fields that have actually changed
-        if (formData.title !== existingTrip.title) updateData.title = formData.title;
-        if (formData.destination !== existingTrip.destination) updateData.destination = formData.destination;
-        if (formData.description !== existingTrip.description) updateData.description = formData.description;
+        if (hasChanged(formData.title, existingTrip.title)) updateData.title = formData.title;
+        if (hasChanged(formData.destination, existingTrip.destination)) updateData.destination = formData.destination;
+        if (hasChanged(formData.description, existingTrip.description)) updateData.description = formData.description;
         if (formData.client_id !== existingTrip.client_id) updateData.client_id = formData.client_id;
         if (formData.trip_type !== existingTrip.trip_type) updateData.trip_type = formData.trip_type;
         
