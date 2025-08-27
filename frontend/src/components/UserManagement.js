@@ -136,11 +136,29 @@ const UserManagement = () => {
   const handleDeleteUser = async (userId) => {
     if (window.confirm('Sei sicuro di voler eliminare questo utente?')) {
       try {
-        // Delete user endpoint not implemented yet
-        toast.info('Eliminazione utenti non ancora implementata');
+        await axios.delete(`${API}/users/${userId}`);
+        toast.success('Utente eliminato con successo!');
+        fetchUsers();
       } catch (error) {
         console.error('Error deleting user:', error);
-        toast.error('Errore nell\'eliminazione dell\'utente');
+        const message = error.response?.data?.detail || 'Errore nell\'eliminazione dell\'utente';
+        toast.error(message);
+      }
+    }
+  };
+
+  const handleBlockUser = async (userId, isBlocked) => {
+    const action = isBlocked ? 'sbloccare' : 'bloccare';
+    if (window.confirm(`Sei sicuro di voler ${action} questo utente?`)) {
+      try {
+        const endpoint = isBlocked ? 'unblock' : 'block';
+        await axios.post(`${API}/users/${userId}/${endpoint}`);
+        toast.success(`Utente ${isBlocked ? 'sbloccato' : 'bloccato'} con successo!`);
+        fetchUsers();
+      } catch (error) {
+        console.error(`Error ${action} user:`, error);
+        const message = error.response?.data?.detail || `Errore nel ${action} l'utente`;
+        toast.error(message);
       }
     }
   };
