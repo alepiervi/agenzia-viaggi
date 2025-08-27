@@ -20,17 +20,7 @@ import {
   Percent
 } from 'lucide-react';
 
-// Smart backend URL detection
-const getBackendUrl = () => {
-  const envUrl = process.env.REACT_APP_BACKEND_URL;
-  // If environment URL contains preview domain, use localhost instead
-  if (envUrl && envUrl.includes('preview.emergentagent.com')) {
-    return 'http://localhost:8001';
-  }
-  return envUrl || 'http://localhost:8001';
-};
-
-const BACKEND_URL = getBackendUrl();
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 const FinancialReports = () => {
