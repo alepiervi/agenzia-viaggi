@@ -461,6 +461,56 @@ async def get_trips(current_user: dict = Depends(get_current_user)):
     
     return [Trip(**parse_from_mongo(trip)) for trip in trips]
 
+@api_router.get("/trips/with-details")
+async def get_trips_with_details(current_user: dict = Depends(get_current_user)):
+    """Get trips with agent and client details"""
+    if current_user["role"] == "admin":
+        trips = await db.trips.find().to_list(1000)
+    elif current_user["role"] == "agent":
+        trips = await db.trips.find({"agent_id": current_user["id"]}).to_list(1000)
+    else:  # client
+        trips = await db.trips.find({"client_id": current_user["id"]}).to_list(1000)
+    
+    # Get all unique user IDs
+    agent_ids = list(set(trip["agent_id"] for trip in trips))
+    client_ids = list(set(trip["client_id"] for trip in trips))
+    
+    # Fetch agents and clients
+    agents = {}
+    if agent_ids:
+        agent_list = await db.users.find({"id": {"$in": agent_ids}}).to_list(1000)
+        agents = {agent["id"]: {
+            "id": agent["id"],
+            "first_name": agent["first_name"],
+            "last_name": agent["last_name"],
+            "email": agent["email"]
+        } for agent in agent_list}
+    
+    clients = {}
+    if client_ids:
+        client_list = await db.users.find({"id": {"$in": client_ids}}).to_list(1000)
+        clients = {client["id"]: {
+            "id": client["id"], 
+            "first_name": client["first_name"],
+            "last_name": client["last_name"],
+            "email": client["email"]
+        } for client in client_list}
+    
+    # Combine trip data with user info
+    trips_with_details = []
+    for trip in trips:
+        trip_data = Trip(**parse_from_mongo(trip))
+        agent_info = agents.get(trip["agent_id"])
+        client_info = clients.get(trip["client_id"])
+        
+        trips_with_details.append({
+            "trip": trip_data,
+            "agent": agent_info,
+            "client": client_info
+        })
+    
+    return trips_with_details
+
 @api_router.post("/trips", response_model=Trip)
 async def create_trip(trip_data: TripCreate, current_user: dict = Depends(get_current_user)):
     if current_user["role"] not in ["admin", "agent"]:
