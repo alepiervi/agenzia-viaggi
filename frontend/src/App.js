@@ -338,6 +338,15 @@ function App() {
               } 
             />
 
+            <Route 
+              path="/clients/:clientId" 
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'agent']}>
+                  <ClientDetail />
+                </ProtectedRoute>
+              } 
+            />
+
             {/* Default Route */}
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
           </Routes>
