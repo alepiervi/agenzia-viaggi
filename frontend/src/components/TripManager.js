@@ -439,15 +439,52 @@ const TripManager = () => {
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="description">Descrizione</Label>
-                  <Textarea
-                    id="description"
-                    placeholder="Descrivi brevemente il viaggio..."
-                    value={formData.description}
-                    onChange={(e) => handleInputChange('description', e.target.value)}
-                    rows={3}
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Descrizione</Label>
+                    <Textarea
+                      id="description"
+                      placeholder="Descrivi brevemente il viaggio..."
+                      value={formData.description}
+                      onChange={(e) => handleInputChange('description', e.target.value)}
+                      rows={3}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="status">Status del Viaggio *</Label>
+                    <Select value={formData.status} onValueChange={(value) => handleInputChange('status', value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleziona status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="draft">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full bg-gray-400"></div>
+                            Bozza
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="active">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                            Attivo
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="completed">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                            Completato
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="cancelled">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                            Annullato
+                          </div>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
