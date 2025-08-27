@@ -101,3 +101,86 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "Travel agency application needs fixes for: 1) Trip update errors in 'I Miei Viaggi' section, 2) Analytics loading errors in Financial Reports, 3) UI layout improvements, 4) Client profile enhancements"
+
+backend:
+  - task: "Fix trip update API to handle partial updates"
+    implemented: true
+    working: false
+    file: "server.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: false
+          agent: "user"
+          comment: "User reported persistent error when trying to modify existing trips in 'I Miei Viaggi' section"
+
+  - task: "Fix analytics data loading in financial reports"
+    implemented: true
+    working: false
+    file: "server.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: false
+          agent: "user"
+          comment: "User reported error loading Analytics in Financial Reports section"
+
+frontend:
+  - task: "Fix TripManager to send only modified fields in edit mode"
+    implemented: false
+    working: false
+    file: "TripManager.js"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: false
+          agent: "main"
+          comment: "TripManager likely sending all fields instead of only modified ones during edit, causing backend validation errors"
+
+  - task: "Improve UI layout - bring selected section data higher"
+    implemented: false
+    working: "NA"
+    file: "multiple UI components"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+          agent: "user"
+          comment: "User requested UI improvement to bring data higher in selected sections"
+
+  - task: "Enhance client profile with bookings, revenue, commissions info"
+    implemented: false
+    working: "NA"
+    file: "ClientDashboard.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+          agent: "user"
+          comment: "Client profile should show bookings, total revenue, commissions, supplier commissions, discounts"
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 0
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "Fix TripManager to send only modified fields in edit mode"
+    - "Fix analytics data loading in financial reports"
+  stuck_tasks:
+    - "Fix trip update API to handle partial updates"
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+    - agent: "main"
+      message: "Starting work on critical trip update and analytics loading issues. Will fix TripManager frontend logic first, then investigate backend analytics endpoints."
