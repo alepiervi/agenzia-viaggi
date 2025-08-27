@@ -228,8 +228,13 @@ const TripManager = () => {
         
         // Only make the request if there are changes
         if (Object.keys(updateData).length > 0) {
+          const updateUrl = `${API}/trips/${editTripId}`;
           console.log('Sending trip update with data:', updateData);
-          tripResponse = await axios.put(`${API}/trips/${editTripId}`, updateData);
+          console.log('Update URL:', updateUrl);
+          console.log('API base:', API);
+          console.log('Trip ID:', editTripId);
+          
+          tripResponse = await axios.put(updateUrl, updateData);
         } else {
           console.log('No changes detected, skipping update');
           // No trip changes, just use existing data
