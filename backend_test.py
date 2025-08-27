@@ -547,6 +547,39 @@ def main():
         if agent_trip_id:
             for role in test_users.keys():
                 tester.test_get_trip_by_id(role, agent_trip_id)
+
+    print("\n🔄 PHASE 2.1: Trip Update Testing (Critical)")
+    print("-" * 40)
+    
+    # Test trip update functionality - CRITICAL TEST
+    if agent_trip_id:
+        # Test agent updating their own trip
+        tester.test_trip_update_partial("agent", agent_trip_id)
+        
+        # Test admin updating any trip
+        if admin_trip_id:
+            tester.test_trip_update_partial("admin", admin_trip_id)
+        
+        # Test client trying to update trip (should fail)
+        expected_status_backup = tester.run_test.__defaults__
+        success, response = tester.run_test(
+            "Client attempting trip update (should fail)",
+            "PUT",
+            f"trips/{agent_trip_id}",
+            403,  # Should fail
+            data={"title": "Client trying to update"},
+            token=tester.tokens.get("client")
+        )
+        print(f"   ✅ Client update properly blocked: {success}")
+    
+    print("\n💰 PHASE 2.2: Trip Admin Data Setup for Analytics")
+    print("-" * 40)
+    
+    # Create trip admin data for analytics testing
+    if agent_trip_id:
+        tester.test_create_trip_admin_data("agent", agent_trip_id)
+    if admin_trip_id:
+        tester.test_create_trip_admin_data("admin", admin_trip_id)
     
     print("\n🚢 PHASE 3: Cruise-Specific Features")
     print("-" * 40)
