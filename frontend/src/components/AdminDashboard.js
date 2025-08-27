@@ -39,12 +39,12 @@ const AdminDashboard = () => {
     try {
       const [statsRes, tripsRes, usersRes] = await Promise.all([
         axios.get(`${API}/dashboard/stats`),
-        axios.get(`${API}/trips`),
+        axios.get(`${API}/trips/with-details`),
         axios.get(`${API}/users`)
       ]);
 
       setStats(statsRes.data);
-      setTrips(tripsRes.data.slice(0, 5)); // Show latest 5 trips
+      setTrips(tripsRes.data.slice(0, 5)); // Show latest 5 trips with details
       setUsers(usersRes.data.slice(0, 5)); // Show latest 5 users
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
