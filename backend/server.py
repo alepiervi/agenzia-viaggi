@@ -266,6 +266,64 @@ class ClientNoteCreate(BaseModel):
     day_number: int
     note_text: str
 
+# Administrative/Financial Models
+class TripAdmin(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    trip_id: str
+    practice_number: str  # Numero scheda pratica
+    booking_number: str   # Numero prenotazione
+    gross_amount: float   # Importo lordo saldato
+    net_amount: float     # Importo Netto
+    discount: float       # Sconto
+    gross_commission: float  # Commissione lorda (calculated)
+    supplier_commission: float  # Commissione fornitore (calculated 4%)
+    agent_commission: float     # Commissione Agente (calculated)
+    practice_confirm_date: datetime  # Data conferma pratica
+    client_departure_date: datetime  # Data partenza Cliente
+    confirmation_deposit: float      # Acconto versato per conferma
+    balance_due: float              # Saldo da versare (calculated)
+    status: str = "draft"           # draft, confirmed, paid, cancelled
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class TripAdminCreate(BaseModel):
+    trip_id: str
+    practice_number: str
+    booking_number: str
+    gross_amount: float
+    net_amount: float
+    discount: float = 0.0
+    practice_confirm_date: datetime
+    client_departure_date: datetime
+    confirmation_deposit: float = 0.0
+
+class TripAdminUpdate(BaseModel):
+    practice_number: Optional[str] = None
+    booking_number: Optional[str] = None
+    gross_amount: Optional[float] = None
+    net_amount: Optional[float] = None
+    discount: Optional[float] = None
+    practice_confirm_date: Optional[datetime] = None
+    client_departure_date: Optional[datetime] = None
+    confirmation_deposit: Optional[float] = None
+    status: Optional[str] = None
+
+class PaymentInstallment(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    trip_admin_id: str
+    amount: float
+    payment_date: datetime
+    payment_type: str = "installment"  # installment, balance, deposit
+    notes: str = ""
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class PaymentInstallmentCreate(BaseModel):
+    trip_admin_id: str
+    amount: float
+    payment_date: datetime
+    payment_type: str = "installment"
+    notes: str = ""
+
 # Utility functions
 def create_token(user_data: dict) -> str:
     payload = {
