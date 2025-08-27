@@ -825,11 +825,32 @@ async def update_client_note(note_id: str, note_text: str, current_user: dict = 
 # Users management (admin only)
 @api_router.get("/users", response_model=List[User])
 async def get_users(current_user: dict = Depends(get_current_user)):
-    if current_user["role"] != "admin":
-        raise HTTPException(status_code=403, detail="Admin access required")
+    if current_user["role"] not in ["admin", "agent"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
     
-    users = await db.users.find().to_list(1000)
-    return [User(**parse_from_mongo(user)) for user in users]
+    users_data = await db.users.find().to_list(1000)
+    
+    # If agent, only show clients they can manage
+    if current_user["role"] == "agent":
+        users_data = [user for user in users_data if user.get("role") == "client"]
+    
+    return [User(**parse_from_mongo(user)) for user in users_data]
+
+@api_router.get("/users/{user_id}", response_model=User)
+async def get_user_by_id(user_id: str, current_user: dict = Depends(get_current_user)):
+    if current_user["role"] not in ["admin", "agent"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    user_data = await db.users.find_one({"id": user_id})
+    if not user_data:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # If agent, verify they can access this user (only clients)
+    if current_user["role"] == "agent":
+        if user_data.get("role") != "client":
+            raise HTTPException(status_code=403, detail="Not authorized to access this user")
+    
+    return User(**parse_from_mongo(user_data))
 
 # Clients management (admin and agent)
 @api_router.get("/clients", response_model=List[User])
