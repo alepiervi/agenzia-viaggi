@@ -254,7 +254,7 @@ const TripManager = () => {
         </div>
 
         {/* Trip Type Selection */}
-        {!selectedTripType && (
+        {!selectedTripType && !isEditMode && (
           <Card>
             <CardHeader>
               <CardTitle>Seleziona il Tipo di Viaggio</CardTitle>
