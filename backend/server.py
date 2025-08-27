@@ -403,8 +403,12 @@ def calculate_trip_admin_fields(trip_admin_data: dict, installments: List[dict] 
     }
 
 def parse_from_mongo(item):
-    """Parse datetime strings from MongoDB back to datetime objects"""
+    """Parse datetime strings from MongoDB back to datetime objects and remove ObjectIds"""
     if isinstance(item, dict):
+        # Remove MongoDB ObjectId field
+        if '_id' in item:
+            del item['_id']
+            
         for key, value in item.items():
             if isinstance(value, str) and 'T' in value and (value.endswith('Z') or '+' in value):
                 try:
