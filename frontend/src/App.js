@@ -26,7 +26,6 @@ import FinancialReports from './components/FinancialReports';
 import ItineraryManager from './components/ItineraryManager';
 import ClientDetail from './components/ClientDetail';
 import NotificationCenter from './components/NotificationCenter';
-import DebugInfo from './components/DebugInfo';
 
 // Backend configuration - use localhost directly
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
