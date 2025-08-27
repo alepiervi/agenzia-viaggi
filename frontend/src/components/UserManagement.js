@@ -294,6 +294,22 @@ const UserManagement = () => {
                     <Edit size={14} className="mr-1" />
                     Modifica
                   </Button>
+                  
+                  {/* Block/Unblock Button */}
+                  {((currentUser?.role === 'agent' && user.role === 'client') || 
+                    (currentUser?.role === 'admin' && user.role !== 'admin')) && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className={`hover:bg-${user.blocked ? 'green' : 'orange'}-50 hover:text-${user.blocked ? 'green' : 'orange'}-700`}
+                      onClick={() => handleBlockUser(user.id, user.blocked)}
+                      title={user.blocked ? 'Sblocca utente' : 'Blocca utente'}
+                    >
+                      {user.blocked ? <Unlock size={14} /> : <Lock size={14} />}
+                    </Button>
+                  )}
+                  
+                  {/* Delete Button (Admin only) */}
                   {currentUser?.role === 'admin' && (
                     <Button
                       size="sm"
