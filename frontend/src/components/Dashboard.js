@@ -110,7 +110,7 @@ const Dashboard = ({ children }) => {
 
           {/* Navigation */}
           <nav className="flex-1 p-4">
-            {children}
+            <NavigationItems />
           </nav>
 
           {/* Footer */}
