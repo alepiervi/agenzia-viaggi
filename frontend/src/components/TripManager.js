@@ -32,9 +32,14 @@ const API = `${BACKEND_URL}/api`;
 
 const TripManager = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const editTripId = searchParams.get('edit');
+  const isEditMode = Boolean(editTripId);
+  
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedTripType, setSelectedTripType] = useState('');
+  const [existingTrip, setExistingTrip] = useState(null);
   
   // Form data
   const [formData, setFormData] = useState({
