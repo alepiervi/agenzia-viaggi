@@ -205,6 +205,25 @@ const UserManagement = () => {
     }
   };
 
+  // Filter users based on search term and archive status
+  const filteredUsers = users.filter(user => {
+    // Filter by archive status
+    const archiveFilter = showArchivedUsers ? user.blocked : !user.blocked;
+    
+    // Filter by search term
+    const searchFilter = searchTerm === '' || 
+      user.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      `${user.first_name} ${user.last_name}`.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    return archiveFilter && searchFilter;
+  });
+
+  const clearSearch = () => {
+    setSearchTerm('');
+  };
+
   const getUserInitials = (firstName, lastName) => {
     return `${firstName?.charAt(0) || ''}${lastName?.charAt(0) || ''}`.toUpperCase();
   };
