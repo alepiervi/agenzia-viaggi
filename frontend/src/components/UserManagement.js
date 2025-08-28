@@ -275,6 +275,28 @@ const UserManagement = () => {
           </Button>
         </div>
 
+        {/* Search Bar */}
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search className="h-4 w-4 text-slate-400" />
+          </div>
+          <Input
+            type="text"
+            placeholder="Cerca per nome, cognome o email..."
+            className="pl-10 pr-10 py-2 w-full bg-white border-slate-300 focus:border-teal-500 focus:ring-teal-500"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          {searchTerm && (
+            <button
+              onClick={clearSearch}
+              className="absolute inset-y-0 right-0 pr-3 flex items-center"
+            >
+              <X className="h-4 w-4 text-slate-400 hover:text-slate-600" />
+            </button>
+          )}
+        </div>
+
         {/* Filter Controls */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
