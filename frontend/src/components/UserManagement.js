@@ -467,31 +467,7 @@ const UserManagement = () => {
             </div>
           )}
         </div>
-
-        {users.length === 0 && !loading && (
-          <Card>
-            <CardContent className="text-center py-16">
-              <Users size={48} className="mx-auto text-slate-400 mb-4" />
-              <h3 className="text-xl font-semibold text-slate-800 mb-2">
-                Nessun {currentUser?.role === 'admin' ? 'utente' : 'cliente'} trovato
-              </h3>
-              <p className="text-slate-500 mb-6">
-                {currentUser?.role === 'admin' 
-                  ? 'Inizia creando il primo utente del sistema'
-                  : 'Inizia creando il tuo primo cliente'
-                }
-              </p>
-              <Button 
-                onClick={handleCreateUser}
-                className="bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700"
-              >
-                <Plus size={16} className="mr-2" />
-                {currentUser?.role === 'admin' ? 'Crea Primo Utente' : 'Crea Primo Cliente'}
-              </Button>
-            </CardContent>
-          </Card>
-        )}
-
+      </div>
         {/* Create/Edit User Dialog */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogContent className="sm:max-w-md">
