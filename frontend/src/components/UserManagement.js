@@ -37,6 +37,7 @@ const UserManagement = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [showArchivedUsers, setShowArchivedUsers] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   
   // Form state
