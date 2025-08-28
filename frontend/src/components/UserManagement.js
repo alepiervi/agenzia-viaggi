@@ -298,6 +298,7 @@ const UserManagement = () => {
                       variant="ghost"
                       className="flex-1 hover:bg-teal-50 hover:text-teal-700"
                       onClick={() => handleViewClient(user.id)}
+                      title="Visualizza dettagli cliente"
                     >
                       <Eye size={14} className="mr-1" />
                       Dettagli
@@ -309,32 +310,36 @@ const UserManagement = () => {
                     variant="ghost"
                     className="flex-1 hover:bg-blue-50 hover:text-blue-700"
                     onClick={() => handleEditUser(user)}
+                    title="Modifica dati utente"
                   >
                     <Edit size={14} className="mr-1" />
                     Modifica
                   </Button>
-                  
-                  {/* Block/Unblock Button */}
-                  {((currentUser?.role === 'agent' && user.role === 'client') || 
-                    (currentUser?.role === 'admin' && user.role !== 'admin')) && (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className={`hover:bg-${user.blocked ? 'green' : 'orange'}-50 hover:text-${user.blocked ? 'green' : 'orange'}-700`}
-                      onClick={() => handleBlockUser(user.id, user.blocked)}
-                      title={user.blocked ? 'Sblocca utente' : 'Blocca utente'}
-                    >
-                      {user.blocked ? <Unlock size={14} /> : <Lock size={14} />}
-                    </Button>
-                  )}
-                  
-                  {/* Delete Button (Admin only) */}
+
+                  {/* Archive/Restore Button */}
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className={`hover:${user.blocked ? 'bg-green-50 text-green-700' : 'bg-orange-50 text-orange-700'}`}
+                    onClick={() => handleBlockUser(user.id, user.blocked)}
+                    title={user.blocked ? 'Ripristina utente' : 'Archivia utente'}
+                  >
+                    {user.blocked ? (
+                      <ArchiveRestore size={14} className="mr-1" />
+                    ) : (
+                      <Archive size={14} className="mr-1" />
+                    )}
+                    {user.blocked ? 'Ripristina' : 'Archivia'}
+                  </Button>
+
+                  {/* Delete Button - Only for Admin */}
                   {currentUser?.role === 'admin' && (
                     <Button
                       size="sm"
                       variant="ghost"
                       className="hover:bg-red-50 hover:text-red-700"
                       onClick={() => handleDeleteUser(user.id)}
+                      title="Elimina definitivamente utente"
                     >
                       <Trash2 size={14} />
                     </Button>
