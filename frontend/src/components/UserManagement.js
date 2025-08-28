@@ -156,16 +156,20 @@ const UserManagement = () => {
   };
 
   const handleBlockUser = async (userId, isBlocked) => {
-    const action = isBlocked ? 'sbloccare' : 'bloccare';
-    if (window.confirm(`Sei sicuro di voler ${action} questo utente?`)) {
+    const action = isBlocked ? 'ripristinare' : 'archiviare';
+    const description = isBlocked 
+      ? 'Il cliente sarà nuovamente visibile e potrà accedere al sistema.'
+      : 'Il cliente sarà nascosto dalla lista ma i suoi dati rimarranno nel sistema.';
+    
+    if (window.confirm(`Vuoi ${action} questo utente?\n\n${description}\n\nConfermi l'operazione?`)) {
       try {
         const endpoint = isBlocked ? 'unblock' : 'block';
         await axios.post(`${API}/users/${userId}/${endpoint}`);
-        toast.success(`Utente ${isBlocked ? 'sbloccato' : 'bloccato'} con successo!`);
+        toast.success(`Utente ${isBlocked ? 'ripristinato' : 'archiviato'} con successo!`);
         fetchUsers();
       } catch (error) {
         console.error(`Error ${action} user:`, error);
-        const message = error.response?.data?.detail || `Errore nel ${action} l'utente`;
+        const message = error.response?.data?.detail || `Errore nell'${action} l'utente`;
         toast.error(message);
       }
     }
