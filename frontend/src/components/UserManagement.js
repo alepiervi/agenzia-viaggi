@@ -301,10 +301,18 @@ const UserManagement = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Badge variant="outline" className="bg-blue-50 text-blue-700">
-              {users.filter(user => !user.blocked).length} Utenti Attivi
+              {showArchivedUsers 
+                ? `${filteredUsers.length} Archiviati` + (searchTerm ? ` (filtrati)` : '')
+                : `${filteredUsers.length} Attivi` + (searchTerm ? ` (filtrati)` : '')
+              }
             </Badge>
-            <Badge variant="outline" className="bg-orange-50 text-orange-700">
-              {users.filter(user => user.blocked).length} Utenti Archiviati
+            {searchTerm && (
+              <Badge variant="outline" className="bg-green-50 text-green-700">
+                🔍 "{searchTerm}"
+              </Badge>
+            )}
+            <Badge variant="outline" className="bg-slate-50 text-slate-600 text-xs">
+              Totali: {users.filter(u => !u.blocked).length} attivi, {users.filter(u => u.blocked).length} archiviati
             </Badge>
           </div>
           
