@@ -434,10 +434,41 @@ const UserManagement = () => {
                 </div>
               </CardContent>
             </Card>
-          ))}
+          ))
+          ) : (
+            <div className="col-span-full">
+              <Card>
+                <CardContent className="text-center py-16">
+                  <Users size={48} className="mx-auto text-slate-400 mb-4" />
+                  <h3 className="text-xl font-semibold text-slate-800 mb-2">
+                    {searchTerm ? (
+                      <>Nessun risultato per "<span className="text-teal-600">{searchTerm}</span>"</>
+                    ) : (
+                      <>Nessun {showArchivedUsers ? 'utente archiviato' : currentUser?.role === 'admin' ? 'utente' : 'cliente'} trovato</>
+                    )}
+                  </h3>
+                  <p className="text-slate-500 mb-4">
+                    {searchTerm ? (
+                      'Prova a modificare i termini di ricerca o controlla se il cliente è archiviato.'
+                    ) : (
+                      showArchivedUsers ? 
+                        'Non ci sono utenti archiviati.' :
+                        `Non ci sono ${currentUser?.role === 'admin' ? 'utenti' : 'clienti'} ancora creati.`
+                    )}
+                  </p>
+                  {searchTerm && (
+                    <Button onClick={clearSearch} variant="outline">
+                      <X size={16} className="mr-2" />
+                      Pulisci ricerca
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          )}
         </div>
 
-        {users.length === 0 && (
+        {users.length === 0 && !loading && (
           <Card>
             <CardContent className="text-center py-16">
               <Users size={48} className="mx-auto text-slate-400 mb-4" />
