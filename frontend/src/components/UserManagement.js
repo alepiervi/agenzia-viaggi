@@ -142,10 +142,10 @@ const UserManagement = () => {
   };
 
   const handleDeleteUser = async (userId) => {
-    if (window.confirm('Sei sicuro di voler eliminare questo utente?')) {
+    if (window.confirm('⚠️ ATTENZIONE: Vuoi eliminare DEFINITIVAMENTE questo utente?\n\nQuesta azione è IRREVERSIBILE e cancellerà:\n• Tutti i dati dell\'utente\n• I viaggi associati\n• Lo storico delle transazioni\n\nSe vuoi solo nascondere l\'utente temporaneamente, usa "Archivia" invece.\n\nConfermi l\'eliminazione definitiva?')) {
       try {
         await axios.delete(`${API}/users/${userId}`);
-        toast.success('Utente eliminato con successo!');
+        toast.success('Utente eliminato definitivamente!');
         fetchUsers();
       } catch (error) {
         console.error('Error deleting user:', error);
