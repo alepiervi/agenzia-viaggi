@@ -49,7 +49,7 @@ const Dashboard = ({ children }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 lg:flex">
       {/* Mobile menu overlay */}
       {sidebarOpen && (
         <div 
@@ -62,7 +62,7 @@ const Dashboard = ({ children }) => {
       <div className={`
         fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 transform
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-        lg:translate-x-0 lg:static lg:inset-0 transition-transform duration-200 ease-in-out
+        lg:translate-x-0 lg:relative lg:flex-shrink-0 transition-transform duration-200 ease-in-out
       `}>
         <div className="flex flex-col h-full">
           {/* Header */}
