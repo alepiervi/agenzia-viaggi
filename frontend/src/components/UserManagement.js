@@ -253,9 +253,40 @@ const UserManagement = () => {
           </Button>
         </div>
 
+        {/* Filter Controls */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Badge variant="outline" className="bg-blue-50 text-blue-700">
+              {users.filter(user => !user.blocked).length} Utenti Attivi
+            </Badge>
+            <Badge variant="outline" className="bg-orange-50 text-orange-700">
+              {users.filter(user => user.blocked).length} Utenti Archiviati
+            </Badge>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-slate-600">Mostra archiviati:</span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowArchivedUsers(!showArchivedUsers)}
+              className={showArchivedUsers ? 'bg-orange-50 text-orange-700 border-orange-200' : ''}
+            >
+              {showArchivedUsers ? (
+                <ArchiveRestore size={14} className="mr-2" />
+              ) : (
+                <Archive size={14} className="mr-2" />
+              )}
+              {showArchivedUsers ? 'Nascondi' : 'Mostra'}
+            </Button>
+          </div>
+        </div>
+
         {/* Users Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {users.map((user) => (
+          {users
+            .filter(user => showArchivedUsers ? user.blocked : !user.blocked)
+            .map((user) => (
             <Card key={user.id} className="hover:shadow-lg transition-all duration-200">
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
