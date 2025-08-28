@@ -144,8 +144,8 @@ const Dashboard = ({ children }) => {
       </div>
 
       {/* Main content */}
-      <div className="lg:pl-64">
-        {/* Top bar */}
+      <div className="flex-1 lg:flex lg:flex-col">
+        {/* Top bar - only on mobile */}
         <div className="flex items-center justify-between p-4 bg-white border-b border-slate-200 lg:hidden">
           <Button
             variant="ghost"
@@ -159,8 +159,8 @@ const Dashboard = ({ children }) => {
         </div>
 
         {/* Page content */}
-        <main className="px-4 pb-4 lg:px-8 lg:pb-8">
-          <div className="pt-2 lg:pt-3">
+        <main className="flex-1 px-4 pb-4 lg:px-8 lg:pb-8">
+          <div className="pt-2 lg:pt-6">
             {children}
           </div>
         </main>
